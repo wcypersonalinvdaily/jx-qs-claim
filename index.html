@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JX QS Claim Manager</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#181c27;--surface2:#1e2333;--surface3:#242840;
+  --border:#2a2f45;--border2:#353c58;
+  --ink:#e8ecf4;--ink2:#a0a8c0;--ink3:#626a88;
+  --accent:#4f8ef7;--accent-bg:rgba(79,142,247,0.12);
+  --green:#34d399;--green-bg:rgba(52,211,153,0.12);
+  --amber:#fbbf24;--amber-bg:rgba(251,191,36,0.12);
+  --red:#f87171;--red-bg:rgba(248,113,113,0.12);
+  --purple:#a78bfa;--purple-bg:rgba(167,139,250,0.12);
+  --shadow:0 4px 24px rgba(0,0,0,0.4);
+  --radius:10px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
+.mono{font-family:'Space Mono',monospace}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between}
+.header-brand{display:flex;flex-direction:column;gap:2px}
+.header-brand h1{font-size:1rem;font-weight:700;color:var(--ink)}
+.header-brand p{font-size:0.7rem;color:var(--ink3)}
+
+/* TABS */
+.tabs{display:flex;gap:2px;background:var(--surface2);border-bottom:1px solid var(--border);padding:0 24px}
+.tab-btn{padding:12px 20px;background:none;border:none;color:var(--ink3);font-family:'DM Sans',sans-serif;font-size:0.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
+.tab-btn:hover{color:var(--ink)}
+.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab-panel{display:none;padding:24px}
+.tab-panel.active{display:block}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;font-weight:500;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:#3d7de8}
+.btn-ghost{background:var(--surface3);color:var(--ink2);border:1px solid var(--border)}
+.btn-ghost:hover{border-color:var(--border2);color:var(--ink)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,0.3)}
+.btn-danger:hover{background:rgba(248,113,113,0.2)}
+.btn-sm{padding:5px 10px;font-size:0.75rem}
+
+/* STAT CARDS */
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.stat-label{font-size:0.72rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.stat-value{font-family:'Space Mono',monospace;font-size:1.4rem;font-weight:700;color:var(--ink)}
+.stat-value.green{color:var(--green)}
+.stat-value.amber{color:var(--amber)}
+.stat-value.red{color:var(--red)}
+.stat-value.accent{color:var(--accent)}
+
+/* FILTER BAR */
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;flex-wrap:wrap}
+.filter-bar select{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--ink);padding:7px 12px;font-family:'DM Sans',sans-serif;font-size:0.82rem;cursor:pointer}
+.filter-bar select:focus{outline:none;border-color:var(--accent)}
+.spacer{flex:1}
+
+/* CLAIM CARDS */
+.claims-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.claim-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.claim-card:hover{border-color:var(--border2);box-shadow:var(--shadow)}
+.claim-card-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+.claim-no{font-weight:700;font-size:0.92rem;color:var(--ink)}
+.status-badge{font-size:0.68rem;font-weight:600;padding:3px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.04em}
+.badge-draft{background:var(--surface3);color:var(--ink3)}
+.badge-submitted{background:var(--accent-bg);color:var(--accent)}
+.badge-approved{background:var(--green-bg);color:var(--green)}
+.badge-paid{background:var(--purple-bg);color:var(--purple)}
+.badge-rejected{background:var(--red-bg);color:var(--red)}
+.claim-meta{font-size:0.78rem;color:var(--ink3);margin-bottom:8px}
+.claim-amount{font-family:'Space Mono',monospace;font-size:1.05rem;font-weight:700;color:var(--ink);margin-bottom:10px}
+.progress-bar{height:5px;background:var(--surface3);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s}
+.progress-label{font-size:0.7rem;color:var(--ink3);margin-top:4px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:100;overflow-y:auto;padding:20px}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:100%;max-width:560px;margin:auto;position:relative}
+.modal-title{font-size:1rem;font-weight:700;margin-bottom:20px;color:var(--ink)}
+.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--ink3);font-size:1.2rem;cursor:pointer}
+.modal-close:hover{color:var(--ink)}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.form-group{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.form-group label{font-size:0.75rem;color:var(--ink3);font-weight:500}
+.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--ink);padding:9px 12px;font-family:'DM Sans',sans-serif;font-size:0.85rem;width:100%}
+.form-group input:focus,.form-group select:focus{outline:none;border-color:var(--accent)}
+.form-group input::placeholder{color:var(--ink3)}
+
+/* DOC LIST */
+.doc-list{display:flex;flex-direction:column;gap:8px;margin-bottom:14px}
+.doc-row{display:flex;align-items:center;gap:8px}
+.doc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;cursor:pointer}
+.doc-dot.green{background:var(--green)}
+.doc-dot.red{background:var(--red)}
+.doc-name{font-size:0.78rem;color:var(--ink2);width:180px;flex-shrink:0}
+.doc-input{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--ink);padding:6px 10px;font-size:0.78rem;font-family:'DM Sans',sans-serif}
+.doc-input:focus{outline:none;border-color:var(--accent)}
+.doc-section-title{font-size:0.75rem;color:var(--ink3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+
+/* DETAIL VIEW */
+#detail-view{display:none;padding:24px}
+.detail-header{display:flex;align-items:center;gap:14px;margin-bottom:24px}
+.detail-title{font-size:1.1rem;font-weight:700}
+.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:24px}
+.detail-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px}
+.detail-section-title{font-size:0.75rem;color:var(--ink3);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.detail-field{margin-bottom:10px}
+.detail-field label{font-size:0.72rem;color:var(--ink3);display:block;margin-bottom:3px}
+.detail-field .val{font-size:0.88rem;color:var(--ink)}
+.detail-field input,.detail-field select{background:var(--surface2);border:1px solid var(--border);border-radius:6px;color:var(--ink);padding:7px 10px;font-family:'DM Sans',sans-serif;font-size:0.85rem;width:100%}
+.detail-field input:focus,.detail-field select:focus{outline:none;border-color:var(--accent)}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{text-align:left;font-size:0.72rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:0.83rem;color:var(--ink2)}
+tr:hover td{background:var(--surface2)}
+td .mono{color:var(--ink)}
+
+/* CHART */
+.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:24px}
+.chart-title{font-size:0.8rem;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px}
+.chart-bars{display:flex;align-items:flex-end;gap:6px;height:140px;padding-bottom:24px;position:relative}
+.chart-bar-group{display:flex;flex-direction:column;align-items:center;gap:2px;flex:1;min-width:40px}
+.chart-bar-pair{display:flex;gap:2px;align-items:flex-end;width:100%;height:120px}
+.chart-bar{flex:1;border-radius:4px 4px 0 0;min-height:2px;transition:height .3s}
+.bar-claimed{background:var(--accent)}
+.bar-received{background:var(--green)}
+.chart-label{font-size:0.62rem;color:var(--ink3);white-space:nowrap}
+.chart-legend{display:flex;gap:16px;margin-top:10px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.75rem;color:var(--ink3)}
+.legend-dot{width:10px;height:10px;border-radius:2px}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:48px 24px;color:var(--ink3)}
+.empty-icon{font-size:2.5rem;margin-bottom:12px}
+.empty p{font-size:0.85rem}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+.confirm-dialog{background:var(--surface2);border:1px solid var(--red);border-radius:8px;padding:14px;margin-top:12px;display:none}
+.confirm-dialog.open{display:block}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-brand">
+    <h1>⚡ QS Claim Manager</h1>
+    <p>JIN XIU Construction · Defu &amp; Elias Stations · Cross Island Line</p>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn active" onclick="switchTab('claims')">📋 Claims</button>
+  <button class="tab-btn" onclick="switchTab('payments')">💰 Payments</button>
+  <button class="tab-btn" onclick="switchTab('summary')">📊 Summary</button>
+</div>
+
+<!-- DETAIL VIEW (overlays tabs) -->
+<div id="detail-view"></div>
+
+<!-- TAB: CLAIMS -->
+<div class="tab-panel active" id="tab-claims">
+  <div class="filter-bar">
+    <select id="filterSite" onchange="renderClaims()">
+      <option value="">All Sites</option>
+      <option value="Defu">Defu</option>
+      <option value="Elias">Elias</option>
+    </select>
+    <select id="filterStatus" onchange="renderClaims()">
+      <option value="">All Status</option>
+      <option value="Draft">Draft</option>
+      <option value="Submitted">Submitted</option>
+      <option value="Approved">Approved</option>
+      <option value="Paid">Paid</option>
+      <option value="Rejected">Rejected</option>
+    </select>
+    <div class="spacer"></div>
+    <button class="btn btn-primary" onclick="openNewClaimModal()">+ New Claim</button>
+  </div>
+  <div class="claims-grid" id="claims-grid"></div>
+</div>
+
+<!-- TAB: PAYMENTS -->
+<div class="tab-panel" id="tab-payments">
+  <div class="stat-grid" id="payment-stats"></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Claim No</th><th>Site</th><th>Month</th>
+          <th>Claimed (SGD)</th><th>Received (SGD)</th><th>Outstanding (SGD)</th><th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="payments-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- TAB: SUMMARY -->
+<div class="tab-panel" id="tab-summary">
+  <div class="stat-grid" id="summary-stats"></div>
+  <div class="chart-wrap">
+    <div class="chart-title">Monthly Claimed vs Received (SGD)</div>
+    <div class="chart-bars" id="chart-bars"></div>
+    <div class="chart-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent)"></div>Claimed</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Received</div>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Site</th><th>Claims</th><th>Total Claimed</th><th>Doc Completion</th></tr></thead>
+      <tbody id="summary-table"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- NEW CLAIM MODAL -->
+<div class="modal-overlay" id="modal-new">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('modal-new')">✕</button>
+    <div class="modal-title">New Claim</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Site</label>
+        <select id="new-site">
+          <option value="Defu">Defu</option>
+          <option value="Elias">Elias</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Month</label>
+        <input type="month" id="new-month">
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Claim No</label>
+        <input type="text" id="new-claimno" placeholder="e.g. JX-DEFU-001">
+      </div>
+      <div class="form-group">
+        <label>Claim Amount (SGD)</label>
+        <input type="number" id="new-amount" placeholder="0.00" min="0" step="0.01">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select id="new-status">
+        <option value="Draft">Draft</option>
+        <option value="Submitted">Submitted</option>
+        <option value="Approved">Approved</option>
+        <option value="Paid">Paid</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+    </div>
+    <div class="divider"></div>
+    <div class="doc-section-title">Documents</div>
+    <div class="doc-list" id="new-doc-list"></div>
+    <button class="btn btn-ghost btn-sm" onclick="addCustomDocNew()" style="margin-bottom:16px">+ Add Custom Doc Type</button>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="closeModal('modal-new')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveClaim()">Save Claim</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── STATE ───────────────────────────────────────────────
+const DEFAULT_DOCS = [
+  'Workdone Drawing (PDF)',
+  'BBS Breakdown List (Excel)',
+  'BBS Detail Record (PDF)',
+  'Claim Breakdown (Excel)',
+  'Payment Cert (PDF)'
+];
+
+function loadClaims() {
+  try { return JSON.parse(localStorage.getItem('jx_qs_claims') || '[]'); } catch(e) { return []; }
+}
+function saveClaims(claims) {
+  localStorage.setItem('jx_qs_claims', JSON.stringify(claims));
+}
+
+// ─── TABS ─────────────────────────────────────────────────
+function switchTab(name) {
+  document.getElementById('detail-view').style.display = 'none';
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelectorAll('.tab-btn')[['claims','payments','summary'].indexOf(name)].classList.add('active');
+  if (name === 'claims') renderClaims();
+  if (name === 'payments') renderPayments();
+  if (name === 'summary') renderSummary();
+}
+
+// ─── MODAL ────────────────────────────────────────────────
+let newCustomDocs = [];
+
+function openNewClaimModal() {
+  newCustomDocs = [];
+  document.getElementById('new-claimno').value = '';
+  document.getElementById('new-amount').value = '';
+  document.getElementById('new-status').value = 'Draft';
+  const now = new Date();
+  document.getElementById('new-month').value = now.toISOString().slice(0,7);
+  renderNewDocList();
+  document.getElementById('modal-new').classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+function renderNewDocList() {
+  const all = [...DEFAULT_DOCS, ...newCustomDocs];
+  const container = document.getElementById('new-doc-list');
+  container.innerHTML = all.map((name, i) => `
+    <div class="doc-row">
+      <div class="doc-dot red" id="ndot-${i}"></div>
+      <span class="doc-name">${name}</span>
+      <input class="doc-input" id="nlink-${i}" placeholder="Paste Google Drive link..." oninput="updateNewDot(${i})">
+    </div>
+  `).join('');
+}
+function updateNewDot(i) {
+  const val = document.getElementById('nlink-'+i).value.trim();
+  const dot = document.getElementById('ndot-'+i);
+  dot.className = 'doc-dot ' + (val ? 'green' : 'red');
+}
+function addCustomDocNew() {
+  const name = prompt('Document type name:');
+  if (name && name.trim()) {
+    newCustomDocs.push(name.trim());
+    renderNewDocList();
+  }
+}
+
+function saveClaim() {
+  const claimNo = document.getElementById('new-claimno').value.trim();
+  const amount = parseFloat(document.getElementById('new-amount').value) || 0;
+  if (!claimNo) { alert('Please enter a Claim No.'); return; }
+
+  const all = [...DEFAULT_DOCS, ...newCustomDocs];
+  const docs = all.map((name, i) => ({
+    name,
+    link: document.getElementById('nlink-'+i).value.trim()
+  }));
+
+  const claims = loadClaims();
+  claims.push({
+    id: Date.now().toString(),
+    claimNo,
+    site: document.getElementById('new-site').value,
+    month: document.getElementById('new-month').value,
+    amount,
+    status: document.getElementById('new-status').value,
+    paymentReceived: 0,
+    docs
+  });
+  saveClaims(claims);
+  closeModal('modal-new');
+  renderClaims();
+}
+
+// ─── CLAIMS TAB ───────────────────────────────────────────
+function renderClaims() {
+  const claims = loadClaims();
+  const site = document.getElementById('filterSite').value;
+  const status = document.getElementById('filterStatus').value;
+  const filtered = claims.filter(c =>
+    (!site || c.site === site) && (!status || c.status === status)
+  );
+  const grid = document.getElementById('claims-grid');
+  if (!filtered.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">📂</div><p>No claims found.</p></div>';
+    return;
+  }
+  grid.innerHTML = filtered.map(c => {
+    const docsDone = c.docs.filter(d => d.link).length;
+    const docsTotal = c.docs.length;
+    const pct = docsTotal ? Math.round(docsDone/docsTotal*100) : 0;
+    return `
+      <div class="claim-card" onclick="openDetail('${c.id}')">
+        <div class="claim-card-header">
+          <span class="claim-no">${c.claimNo}</span>
+          <span class="status-badge badge-${c.status.toLowerCase()}">${c.status}</span>
+        </div>
+        <div class="claim-meta">${c.site} · ${c.month}</div>
+        <div class="claim-amount mono">SGD ${fmtNum(c.amount)}</div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="progress-label">${docsDone}/${docsTotal} documents · ${pct}%</div>
+      </div>
+    `;
+  }).join('');
+}
+
+// ─── DETAIL VIEW ──────────────────────────────────────────
+function openDetail(id) {
+  const claims = loadClaims();
+  const c = claims.find(x => x.id === id);
+  if (!c) return;
+  const dv = document.getElementById('detail-view');
+  dv.style.display = 'block';
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+  dv.innerHTML = `
+    <div class="detail-header">
+      <button class="btn btn-ghost btn-sm" onclick="closeDetail()">← Back</button>
+      <span class="detail-title">${c.claimNo}</span>
+      <span class="status-badge badge-${c.status.toLowerCase()}">${c.status}</span>
+    </div>
+    <div class="detail-grid">
+      <div class="detail-section">
+        <div class="detail-section-title">Claim Info</div>
+        <div class="detail-field"><label>Site</label><div class="val">${c.site}</div></div>
+        <div class="detail-field"><label>Month</label><div class="val">${c.month}</div></div>
+        <div class="detail-field"><label>Claim Amount (SGD)</label><div class="val mono">${fmtNum(c.amount)}</div></div>
+        <div class="detail-field">
+          <label>Status</label>
+          <select id="d-status" onchange="updateField('${id}','status',this.value)">
+            ${['Draft','Submitted','Approved','Paid','Rejected'].map(s=>`<option ${c.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>
+        <div class="detail-field">
+          <label>Payment Received (SGD)</label>
+          <input type="number" id="d-payment" value="${c.paymentReceived||0}" min="0" step="0.01"
+            onchange="updateField('${id}','paymentReceived',parseFloat(this.value)||0)">
+        </div>
+      </div>
+      <div class="detail-section">
+        <div class="detail-section-title">Documents</div>
+        <div id="detail-docs">
+          ${c.docs.map((d,i) => docRow(id, i, d)).join('')}
+        </div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addCustomDocDetail('${id}')">+ Add Custom Doc</button>
+      </div>
+    </div>
+    <div class="confirm-dialog" id="confirm-delete">
+      <p style="color:var(--red);font-size:0.85rem;margin-bottom:10px">⚠️ Delete this claim? This cannot be undone.</p>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-danger btn-sm" onclick="deleteClaim('${id}')">Yes, Delete</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('confirm-delete').classList.remove('open')">Cancel</button>
+      </div>
+    </div>
+    <div style="margin-top:4px">
+      <button class="btn btn-danger btn-sm" onclick="document.getElementById('confirm-delete').classList.add('open')">🗑 Delete Claim</button>
+    </div>
+  `;
+}
+
+function docRow(claimId, i, d) {
+  const hasLink = !!d.link;
+  return `
+    <div class="doc-row" style="margin-bottom:8px">
+      <div class="doc-dot ${hasLink?'green':'red'}" id="ddot-${i}"
+        onclick="${hasLink?`window.open('${d.link}','_blank')`:''}"></div>
+      <span class="doc-name" style="font-size:0.75rem">${d.name}</span>
+      <input class="doc-input" id="dlink-${i}" value="${d.link||''}" placeholder="Google Drive link..."
+        onchange="updateDocLink('${claimId}',${i},this.value)">
+    </div>
+  `;
+}
+
+function updateDocLink(claimId, i, val) {
+  const claims = loadClaims();
+  const c = claims.find(x => x.id === claimId);
+  if (!c) return;
+  c.docs[i].link = val.trim();
+  saveClaims(claims);
+  const dot = document.getElementById('ddot-'+i);
+  if (dot) {
+    dot.className = 'doc-dot ' + (val.trim() ? 'green' : 'red');
+    dot.onclick = val.trim() ? () => window.open(val.trim(),'_blank') : null;
+  }
+}
+
+function updateField(claimId, field, val) {
+  const claims = loadClaims();
+  const c = claims.find(x => x.id === claimId);
+  if (!c) return;
+  c[field] = val;
+  saveClaims(claims);
+}
+
+function addCustomDocDetail(claimId) {
+  const name = prompt('Document type name:');
+  if (!name || !name.trim()) return;
+  const claims = loadClaims();
+  const c = claims.find(x => x.id === claimId);
+  if (!c) return;
+  c.docs.push({ name: name.trim(), link: '' });
+  saveClaims(claims);
+  openDetail(claimId);
+}
+
+function deleteClaim(id) {
+  const claims = loadClaims().filter(c => c.id !== id);
+  saveClaims(claims);
+  closeDetail();
+}
+
+function closeDetail() {
+  document.getElementById('detail-view').style.display = 'none';
+  document.getElementById('tab-claims').classList.add('active');
+  document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  renderClaims();
+}
+
+// ─── PAYMENTS TAB ─────────────────────────────────────────
+function renderPayments() {
+  const claims = loadClaims();
+  const totalClaimed = claims.reduce((s,c) => s + (c.amount||0), 0);
+  const totalReceived = claims.reduce((s,c) => s + (c.paymentReceived||0), 0);
+  const outstanding = totalClaimed - totalReceived;
+  const rate = totalClaimed ? (totalReceived/totalClaimed*100).toFixed(1) : '0.0';
+
+  document.getElementById('payment-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Claimed</div><div class="stat-value accent mono">$${fmtNum(totalClaimed)}</div></div>
+    <div class="stat-card"><div class="stat-label">Total Received</div><div class="stat-value green mono">$${fmtNum(totalReceived)}</div></div>
+    <div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value amber mono">$${fmtNum(outstanding)}</div></div>
+    <div class="stat-card"><div class="stat-label">Collection Rate</div><div class="stat-value ${parseFloat(rate)>=80?'green':parseFloat(rate)>=50?'amber':'red'} mono">${rate}%</div></div>
+  `;
+
+  const sorted = [...claims].sort((a,b) => b.month.localeCompare(a.month));
+  document.getElementById('payments-table').innerHTML = sorted.length
+    ? sorted.map(c => {
+        const recv = c.paymentReceived||0;
+        const out = (c.amount||0) - recv;
+        return `<tr>
+          <td><span class="mono">${c.claimNo}</span></td>
+          <td>${c.site}</td>
+          <td>${c.month}</td>
+          <td class="mono">${fmtNum(c.amount)}</td>
+          <td class="mono" style="color:var(--green)">${fmtNum(recv)}</td>
+          <td class="mono" style="color:${out>0?'var(--amber)':'var(--ink3)'}">${fmtNum(out)}</td>
+          <td><span class="status-badge badge-${c.status.toLowerCase()}">${c.status}</span></td>
+        </tr>`;
+      }).join('')
+    : '<tr><td colspan="7" style="text-align:center;color:var(--ink3);padding:32px">No claims yet</td></tr>';
+}
+
+// ─── SUMMARY TAB ──────────────────────────────────────────
+function renderSummary() {
+  const claims = loadClaims();
+  const defu = claims.filter(c => c.site==='Defu');
+  const elias = claims.filter(c => c.site==='Elias');
+  const totalDocs = claims.reduce((s,c) => s + c.docs.length, 0);
+  const doneDocs = claims.reduce((s,c) => s + c.docs.filter(d=>d.link).length, 0);
+  const docPct = totalDocs ? Math.round(doneDocs/totalDocs*100) : 0;
+
+  document.getElementById('summary-stats').innerHTML = `
+    <div class="stat-card"><div class="stat-label">Total Claims</div><div class="stat-value mono">${claims.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Defu Claims</div><div class="stat-value accent mono">${defu.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Elias Claims</div><div class="stat-value purple mono">${elias.length}</div></div>
+    <div class="stat-card"><div class="stat-label">Doc Completion</div><div class="stat-value ${docPct>=80?'green':docPct>=50?'amber':'red'} mono">${docPct}%</div></div>
+  `;
+
+  // Chart: group by month
+  const months = {};
+  claims.forEach(c => {
+    if (!months[c.month]) months[c.month] = { claimed:0, received:0 };
+    months[c.month].claimed += c.amount||0;
+    months[c.month].received += c.paymentReceived||0;
+  });
+  const sortedMonths = Object.keys(months).sort();
+  const maxVal = Math.max(...sortedMonths.map(m => months[m].claimed), 1);
+
+  const barsEl = document.getElementById('chart-bars');
+  if (!sortedMonths.length) {
+    barsEl.innerHTML = '<div style="color:var(--ink3);font-size:0.82rem;padding:20px">No data yet</div>';
+  } else {
+    barsEl.innerHTML = sortedMonths.map(m => {
+      const claimedH = Math.max(Math.round(months[m].claimed/maxVal*110), 2);
+      const recvH = Math.max(Math.round(months[m].received/maxVal*110), 2);
+      return `
+        <div class="chart-bar-group">
+          <div class="chart-bar-pair">
+            <div class="chart-bar bar-claimed" style="height:${claimedH}px" title="Claimed: $${fmtNum(months[m].claimed)}"></div>
+            <div class="chart-bar bar-received" style="height:${recvH}px" title="Received: $${fmtNum(months[m].received)}"></div>
+          </div>
+          <div class="chart-label">${m.slice(5)}</div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // Site table
+  const siteData = [
+    { site:'Defu', list: defu },
+    { site:'Elias', list: elias }
+  ];
+  document.getElementById('summary-table').innerHTML = siteData.map(({site,list}) => {
+    const td = list.reduce((s,c)=>s+c.docs.length,0);
+    const dd = list.reduce((s,c)=>s+c.docs.filter(d=>d.link).length,0);
+    const sp = td ? Math.round(dd/td*100) : 0;
+    const tc = list.reduce((s,c)=>s+(c.amount||0),0);
+    return `<tr>
+      <td>${site}</td>
+      <td class="mono">${list.length}</td>
+      <td class="mono">SGD ${fmtNum(tc)}</td>
+      <td><div style="display:flex;align-items:center;gap:8px">
+        <div style="flex:1;max-width:100px;height:6px;background:var(--surface3);border-radius:3px">
+          <div style="width:${sp}%;height:100%;background:${sp>=80?'var(--green)':sp>=50?'var(--amber)':'var(--red)'};border-radius:3px"></div>
+        </div>
+        <span class="mono" style="font-size:0.8rem">${sp}%</span>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+// ─── UTILS ────────────────────────────────────────────────
+function fmtNum(n) {
+  return Number(n||0).toLocaleString('en-SG', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+renderClaims();
+</script>
+</body>
+</html>
