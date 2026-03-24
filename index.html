@@ -283,6 +283,7 @@ td .mono{color:var(--ink)}
 
 <script>
 // ─── STATE ───────────────────────────────────────────────
+const API_URL = 'https://script.google.com/macros/s/AKfycbwbgegb2u0_CTlObOzFVlySrwMQcR1-RodV6z39wITT_unATLujFuQwmKZkMBoinyW_/exec';
 const DEFAULT_DOCS = [
   'Workdone Drawing (PDF)',
   'BBS Breakdown List (Excel)',
@@ -290,24 +291,143 @@ const DEFAULT_DOCS = [
   'Claim Breakdown (Excel)',
   'Payment Cert (PDF)'
 ];
+let claimsState = [];
+let activeTab = 'claims';
+
+function emptyClaimFromServer(claim) {
+  return {
+    id: claim.ID || '',
+    claimNo: claim.ID || '',
+    site: claim.Station || '',
+    month: claim.Date || '',
+    amount: Number(claim.Amount || 0),
+    status: claim.Status || 'Draft',
+    paymentReceived: 0,
+    docs: DEFAULT_DOCS.map(name => ({ name, link: '' }))
+  };
+}
+
+function parseClaimDescription(value) {
+  if (!value) return {};
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return {};
+  }
+}
+
+function normalizeDocs(files) {
+  const byName = new Map();
+  DEFAULT_DOCS.forEach(name => byName.set(name, { name, link: '' }));
+  (files || []).forEach(file => {
+    const name = file.FileName || 'Document';
+    byName.set(name, {
+      name,
+      link: file.DriveURL || ''
+    });
+  });
+  return Array.from(byName.values());
+}
+
+function hydrateClaim(claim, files) {
+  const extra = parseClaimDescription(claim.Description);
+  const base = emptyClaimFromServer(claim);
+  return {
+    ...base,
+    claimNo: extra.claimNo || claim.ID || '',
+    month: extra.month || claim.Date || '',
+    paymentReceived: Number(extra.paymentReceived || 0),
+    docs: normalizeDocs(files)
+  };
+}
+
+function serializeClaim(claim) {
+  return {
+    id: claim.id,
+    date: claim.month,
+    station: claim.site,
+    amount: claim.amount,
+    status: claim.status,
+    description: JSON.stringify({
+      claimNo: claim.claimNo,
+      month: claim.month,
+      paymentReceived: Number(claim.paymentReceived || 0)
+    }),
+    files: claim.docs.map(doc => ({
+      fileName: doc.name,
+      fileType: inferFileType(doc.name),
+      driveUrl: doc.link || ''
+    }))
+  };
+}
+
+function inferFileType(name) {
+  const match = /\(([^)]+)\)\s*$/.exec(name || '');
+  return match ? match[1] : 'Link';
+}
 
 function loadClaims() {
-  try { return JSON.parse(localStorage.getItem('jx_qs_claims') || '[]'); } catch(e) { return []; }
+  return claimsState;
 }
-function saveClaims(claims) {
-  localStorage.setItem('jx_qs_claims', JSON.stringify(claims));
+
+async function apiFetch(action, options = {}) {
+  const { method = 'GET', body } = options;
+  const isGet = method === 'GET';
+  const url = isGet
+    ? `${API_URL}?${new URLSearchParams({ action, ...(body || {}) }).toString()}`
+    : API_URL;
+  const response = await fetch(url, {
+    method,
+    headers: isGet ? {} : { 'Content-Type': 'application/json' },
+    body: isGet ? undefined : JSON.stringify({ action, ...(body || {}) })
+  });
+  const result = await response.json();
+  if (!result.success) {
+    throw new Error(result.error || 'Request failed');
+  }
+  return result;
+}
+
+async function fetchHistory(claimId) {
+  const result = await apiFetch('getHistory', {
+    body: { claimId }
+  });
+  return result.history || [];
+}
+
+async function refreshClaims() {
+  const result = await apiFetch('getClaims');
+  const claims = result.claims || [];
+  const histories = await Promise.all(
+    claims.map(claim => fetchHistory(claim.ID).catch(() => []))
+  );
+  claimsState = claims.map((claim, index) => hydrateClaim(claim, histories[index]));
+  return claimsState;
+}
+
+async function withRefresh(renderFn) {
+  try {
+    await refreshClaims();
+    renderFn();
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'Failed to load data.');
+  }
 }
 
 // ─── TABS ─────────────────────────────────────────────────
-function switchTab(name) {
+async function switchTab(name) {
+  activeTab = name;
   document.getElementById('detail-view').style.display = 'none';
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelectorAll('.tab-btn')[['claims','payments','summary'].indexOf(name)].classList.add('active');
-  if (name === 'claims') renderClaims();
-  if (name === 'payments') renderPayments();
-  if (name === 'summary') renderSummary();
+  await withRefresh(() => {
+    if (name === 'claims') renderClaims();
+    if (name === 'payments') renderPayments();
+    if (name === 'summary') renderSummary();
+  });
 }
 
 // ─── MODAL ────────────────────────────────────────────────
@@ -351,7 +471,7 @@ function addCustomDocNew() {
   }
 }
 
-function saveClaim() {
+async function saveClaim() {
   const claimNo = document.getElementById('new-claimno').value.trim();
   const amount = parseFloat(document.getElementById('new-amount').value) || 0;
   if (!claimNo) { alert('Please enter a Claim No.'); return; }
@@ -362,9 +482,8 @@ function saveClaim() {
     link: document.getElementById('nlink-'+i).value.trim()
   }));
 
-  const claims = loadClaims();
-  claims.push({
-    id: Date.now().toString(),
+  const claim = {
+    id: `CLM-${Date.now()}`,
     claimNo,
     site: document.getElementById('new-site').value,
     month: document.getElementById('new-month').value,
@@ -372,10 +491,19 @@ function saveClaim() {
     status: document.getElementById('new-status').value,
     paymentReceived: 0,
     docs
-  });
-  saveClaims(claims);
-  closeModal('modal-new');
-  renderClaims();
+  };
+
+  try {
+    await apiFetch('submit', {
+      method: 'POST',
+      body: serializeClaim(claim)
+    });
+    closeModal('modal-new');
+    await withRefresh(() => renderClaims());
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'Failed to save claim.');
+  }
 }
 
 // ─── CLAIMS TAB ───────────────────────────────────────────
@@ -411,7 +539,12 @@ function renderClaims() {
 }
 
 // ─── DETAIL VIEW ──────────────────────────────────────────
-function openDetail(id) {
+async function openDetail(id) {
+  try {
+    await withRefresh(() => {});
+  } catch (error) {
+    return;
+  }
   const claims = loadClaims();
   const c = claims.find(x => x.id === id);
   if (!c) return;
@@ -477,48 +610,86 @@ function docRow(claimId, i, d) {
   `;
 }
 
-function updateDocLink(claimId, i, val) {
+async function persistClaim(claim) {
+  await apiFetch('update', {
+    method: 'POST',
+    body: serializeClaim(claim)
+  });
+}
+
+async function updateDocLink(claimId, i, val) {
   const claims = loadClaims();
   const c = claims.find(x => x.id === claimId);
   if (!c) return;
   c.docs[i].link = val.trim();
-  saveClaims(claims);
-  const dot = document.getElementById('ddot-'+i);
-  if (dot) {
-    dot.className = 'doc-dot ' + (val.trim() ? 'green' : 'red');
-    dot.onclick = val.trim() ? () => window.open(val.trim(),'_blank') : null;
+  try {
+    await persistClaim(c);
+    const dot = document.getElementById('ddot-'+i);
+    if (dot) {
+      dot.className = 'doc-dot ' + (val.trim() ? 'green' : 'red');
+      dot.onclick = val.trim() ? () => window.open(val.trim(),'_blank') : null;
+    }
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'Failed to update document link.');
+    await withRefresh(() => openDetail(claimId));
   }
 }
 
-function updateField(claimId, field, val) {
+async function updateField(claimId, field, val) {
   const claims = loadClaims();
   const c = claims.find(x => x.id === claimId);
   if (!c) return;
   c[field] = val;
-  saveClaims(claims);
+  try {
+    await persistClaim(c);
+    await withRefresh(() => {
+      if (document.getElementById('detail-view').style.display === 'block') {
+        openDetail(claimId);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'Failed to update claim.');
+  }
 }
 
-function addCustomDocDetail(claimId) {
+async function addCustomDocDetail(claimId) {
   const name = prompt('Document type name:');
   if (!name || !name.trim()) return;
   const claims = loadClaims();
   const c = claims.find(x => x.id === claimId);
   if (!c) return;
   c.docs.push({ name: name.trim(), link: '' });
-  saveClaims(claims);
-  openDetail(claimId);
+  try {
+    await persistClaim(c);
+    await withRefresh(() => openDetail(claimId));
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'Failed to add document.');
+  }
 }
 
-function deleteClaim(id) {
-  const claims = loadClaims().filter(c => c.id !== id);
-  saveClaims(claims);
-  closeDetail();
+async function deleteClaim(id) {
+  try {
+    await apiFetch('delete', {
+      method: 'POST',
+      body: { id }
+    });
+    await withRefresh(() => closeDetail());
+  } catch (error) {
+    console.error(error);
+    alert(error.message || 'Failed to delete claim.');
+  }
 }
 
 function closeDetail() {
   document.getElementById('detail-view').style.display = 'none';
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-claims').classList.add('active');
   document.querySelectorAll('.tab-btn')[0].classList.add('active');
+  activeTab = 'claims';
   renderClaims();
 }
 
@@ -630,7 +801,7 @@ function fmtNum(n) {
 }
 
 // ─── INIT ─────────────────────────────────────────────────
-renderClaims();
+withRefresh(() => renderClaims());
 </script>
 </body>
 </html>
