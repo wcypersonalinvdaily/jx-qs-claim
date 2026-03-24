@@ -1,115 +1,39 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>JX QS Claim</title>
   <style>
     :root{
-      --bg:#0b1020;
-      --panel:#121a2b;
-      --panel-2:#182238;
-      --panel-3:#202c47;
-      --border:#2a3654;
-      --text:#edf2ff;
-      --muted:#9aa8c7;
-      --accent:#5ea2ff;
-      --accent-2:#7cc4ff;
-      --good:#2dd4bf;
-      --danger:#fb7185;
-      --warning:#fbbf24;
-      --shadow:0 14px 40px rgba(0,0,0,.32);
-      --radius:18px;
-      --radius-sm:12px;
-      --tab-h:48px;
-      --safe-bottom:env(safe-area-inset-bottom,0px);
+      --bg:#0b1020;--panel:#121a2b;--panel2:#182238;--panel3:#202c47;--border:#2a3654;
+      --text:#edf2ff;--muted:#9aa8c7;--accent:#5ea2ff;--accent2:#7cc4ff;--good:#2dd4bf;--danger:#fb7185;
+      --shadow:0 14px 40px rgba(0,0,0,.32);--radius:18px;--safe-bottom:env(safe-area-inset-bottom,0px);
     }
-    *{box-sizing:border-box}
-    html,body{margin:0;padding:0;background:linear-gradient(180deg,#09101d 0%,#0c1220 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-    body{min-height:100vh}
-    a{color:var(--accent-2);text-decoration:none}
-    button,input,select,textarea{font:inherit}
+    *{box-sizing:border-box} html,body{margin:0;padding:0;background:linear-gradient(180deg,#09101d 0%,#0c1220 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{min-height:100vh} a{color:var(--accent2);text-decoration:none} button,input,select,textarea{font:inherit}
     .app{max-width:1180px;margin:0 auto;padding:18px 14px calc(90px + var(--safe-bottom))}
     .hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;background:rgba(18,26,43,.86);backdrop-filter:blur(14px);border:1px solid rgba(94,162,255,.12);box-shadow:var(--shadow);padding:18px;border-radius:22px;position:sticky;top:10px;z-index:10}
-    .hero h1{margin:0 0 6px;font-size:1.1rem}
-    .hero p{margin:0;color:var(--muted);font-size:.92rem;line-height:1.45}
-    .pill{white-space:nowrap;padding:10px 14px;border-radius:999px;background:rgba(94,162,255,.12);border:1px solid rgba(94,162,255,.2);color:var(--accent-2);font-size:.84rem;font-weight:700}
-
+    .hero h1{margin:0 0 6px;font-size:1.1rem}.hero p{margin:0;color:var(--muted);font-size:.92rem;line-height:1.45}
+    .pill{white-space:nowrap;padding:10px 14px;border-radius:999px;background:rgba(94,162,255,.12);border:1px solid rgba(94,162,255,.2);color:var(--accent2);font-size:.84rem;font-weight:700}
     .tabs{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + var(--safe-bottom));background:linear-gradient(180deg,rgba(9,16,29,0) 0%,rgba(9,16,29,.9) 24%,rgba(9,16,29,1) 100%);z-index:20}
     .tabs-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:rgba(18,26,43,.92);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:10px;box-shadow:var(--shadow)}
-    .tab-btn{height:var(--tab-h);border:none;border-radius:14px;background:transparent;color:var(--muted);font-weight:700;cursor:pointer;transition:.2s}
-    .tab-btn.active{background:linear-gradient(180deg,rgba(94,162,255,.2),rgba(94,162,255,.1));color:var(--text);border:1px solid rgba(94,162,255,.2)}
-
-    .panel{display:none;margin-top:16px}
-    .panel.active{display:block}
-    .grid{display:grid;gap:16px}
-    .grid-2{grid-template-columns:1.1fr .9fr}
-    .card{background:var(--panel);border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px}
-    .card h2,.card h3{margin:0 0 14px}
-    .sub{color:var(--muted);font-size:.88rem;line-height:1.45}
-    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
-    .field label{font-size:.84rem;color:var(--muted);font-weight:700}
-    .field input,.field select,.field textarea{width:100%;border:1px solid var(--border);background:var(--panel-2);color:var(--text);padding:13px 14px;border-radius:14px;outline:none}
-    .field textarea{min-height:110px;resize:vertical}
-    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(94,162,255,.12)}
-    .drop{border:1.5px dashed rgba(124,196,255,.35);background:linear-gradient(180deg,rgba(94,162,255,.08),rgba(94,162,255,.02));border-radius:18px;padding:18px;text-align:center}
-    .drop strong{display:block;font-size:1rem;margin-bottom:8px}
-    .drop span{display:block;color:var(--muted);font-size:.9rem;line-height:1.45}
-    .drop input{margin-top:12px;width:100%}
-    .actions{display:flex;gap:10px;flex-wrap:wrap}
-    .btn{border:none;border-radius:14px;padding:13px 16px;font-weight:800;cursor:pointer}
-    .btn-primary{background:linear-gradient(180deg,var(--accent),#417df2);color:white}
-    .btn-secondary{background:var(--panel-3);color:var(--text);border:1px solid rgba(255,255,255,.08)}
-    .btn-danger{background:rgba(251,113,133,.12);color:#ff9db0;border:1px solid rgba(251,113,133,.22)}
-    .btn:disabled{opacity:.55;cursor:not-allowed}
-    .hint{color:var(--muted);font-size:.86rem;line-height:1.45}
-
-    .progress-wrap{display:none;margin:12px 0 4px}
-    .progress-wrap.show{display:block}
-    .progress-label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:7px}
-    .progress{height:10px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
-    .progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--good));transition:width .18s ease}
-
-    .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
-    .meta-box{padding:14px;border-radius:16px;background:var(--panel-2);border:1px solid rgba(255,255,255,.05)}
-    .meta-k{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-    .meta-v{font-weight:700;word-break:break-word}
-
-    .filters{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
-    .list{display:grid;gap:12px}
-    .file-card{padding:14px;border-radius:16px;background:var(--panel-2);border:1px solid rgba(255,255,255,.05)}
-    .file-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
-    .file-title{font-size:.98rem;font-weight:800;line-height:1.3}
-    .file-sub{color:var(--muted);font-size:.85rem;line-height:1.45}
-    .badges{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
-    .badge{padding:7px 10px;border-radius:999px;font-size:.76rem;font-weight:800;background:rgba(94,162,255,.1);color:var(--accent-2);border:1px solid rgba(94,162,255,.18)}
-    .file-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-
-    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
-    .stat{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
-    .stat .k{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
-    .stat .v{font-size:1.28rem;font-weight:900}
-    .section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
-    .table-wrap{overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.06)}
-    table{width:100%;border-collapse:collapse;min-width:520px;background:var(--panel)}
-    th,td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left}
-    th{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-    td{font-size:.9rem}
-    .empty{padding:28px 12px;text-align:center;color:var(--muted)}
-
-    @media (max-width:960px){
-      .grid-2,.stats,.filters,.meta,.form-grid{grid-template-columns:1fr}
-      .hero{position:relative;top:auto;flex-direction:column}
-    }
-    @media (max-width:640px){
-      .app{padding:12px 12px calc(90px + var(--safe-bottom))}
-      .hero{padding:15px;border-radius:18px}
-      .card{padding:14px;border-radius:18px}
-      .btn{width:100%;justify-content:center}
-      .file-top{flex-direction:column}
-      .pill{align-self:flex-start}
-    }
+    .tab-btn{height:48px;border:none;border-radius:14px;background:transparent;color:var(--muted);font-weight:700;cursor:pointer;transition:.2s}.tab-btn.active{background:linear-gradient(180deg,rgba(94,162,255,.2),rgba(94,162,255,.1));color:var(--text);border:1px solid rgba(94,162,255,.2)}
+    .panel{display:none;margin-top:16px}.panel.active{display:block}.grid{display:grid;gap:16px}.grid2{grid-template-columns:1.1fr .9fr}
+    .card{background:var(--panel);border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px}.card h2,.card h3{margin:0 0 14px}.sub{color:var(--muted);font-size:.88rem;line-height:1.45}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}.field label{font-size:.84rem;color:var(--muted);font-weight:700}
+    .field input,.field select,.field textarea{width:100%;border:1px solid var(--border);background:var(--panel2);color:var(--text);padding:13px 14px;border-radius:14px;outline:none}.field textarea{min-height:110px;resize:vertical}
+    .drop{border:1.5px dashed rgba(124,196,255,.35);background:linear-gradient(180deg,rgba(94,162,255,.08),rgba(94,162,255,.02));border-radius:18px;padding:18px;text-align:center}.drop strong{display:block;font-size:1rem;margin-bottom:8px}.drop span{display:block;color:var(--muted);font-size:.9rem;line-height:1.45}.drop input{margin-top:12px;width:100%}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:none;border-radius:14px;padding:13px 16px;font-weight:800;cursor:pointer}.btn-primary{background:linear-gradient(180deg,var(--accent),#417df2);color:white}.btn-secondary{background:var(--panel3);color:var(--text);border:1px solid rgba(255,255,255,.08)}.btn-danger{background:rgba(251,113,133,.12);color:#ff9db0;border:1px solid rgba(251,113,133,.22)}.btn:disabled{opacity:.55;cursor:not-allowed}
+    .hint{color:var(--muted);font-size:.86rem;line-height:1.45}.progress-wrap{display:none;margin:12px 0 4px}.progress-wrap.show{display:block}.progress-label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:7px}.progress{height:10px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}.progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--good));transition:width .18s ease}
+    .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}.meta-box{padding:14px;border-radius:16px;background:var(--panel2);border:1px solid rgba(255,255,255,.05)}.meta-k{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}.meta-v{font-weight:700;word-break:break-word}
+    .search-row{display:grid;grid-template-columns:1.2fr repeat(3,1fr);gap:10px;margin-bottom:14px}
+    .tree{display:grid;gap:10px}.tree-section,.tree-month,.tree-type,.tree-file{background:var(--panel2);border:1px solid rgba(255,255,255,.05);border-radius:16px}.tree-head{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:14px 16px;cursor:pointer}.tree-title{font-weight:800}.tree-sub{font-size:.82rem;color:var(--muted)}.tree-body{padding:0 10px 10px 10px;display:none}.tree-body.open{display:block}
+    .tree-month{margin-top:8px}.tree-type{margin-top:8px}.tree-file{padding:12px 14px;margin-top:8px}.tree-file-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.tree-file-name{font-weight:700;line-height:1.35}.tree-file-meta{font-size:.82rem;color:var(--muted);line-height:1.45;margin-top:4px}.badge{padding:7px 10px;border-radius:999px;font-size:.76rem;font-weight:800;background:rgba(94,162,255,.1);color:var(--accent2);border:1px solid rgba(94,162,255,.18)}.badges{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.file-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+    .stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}.stat{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:16px;box-shadow:var(--shadow)}.stat .k{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}.stat .v{font-size:1.18rem;font-weight:900}
+    .table-wrap{overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.06)} table{width:100%;border-collapse:collapse;min-width:520px;background:var(--panel)} th,td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left} th{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em} td{font-size:.9rem}.empty{padding:28px 12px;text-align:center;color:var(--muted)}
+    @media (max-width:960px){.grid2,.stats,.meta,.form-grid,.search-row{grid-template-columns:1fr}.hero{position:relative;top:auto;flex-direction:column}}
+    @media (max-width:640px){.app{padding:12px 12px calc(90px + var(--safe-bottom))}.hero{padding:15px;border-radius:18px}.card{padding:14px;border-radius:18px}.btn{width:100%;justify-content:center}.tree-file-top{flex-direction:column}.pill{align-self:flex-start}}
   </style>
 </head>
 <body>
@@ -117,498 +41,106 @@
     <div class="hero">
       <div>
         <h1>📁 JX QS Claim</h1>
-        <p>工地手机可直接上传 PDF / Excel / CSV，统一归档、管理文件、查看月度汇总。</p>
+        <p>QS 文件统一归档到 Drive：支持 PDF / Excel / CSV，站点按月份自动落盘。</p>
       </div>
       <div class="pill" id="app-status">Ready</div>
     </div>
 
     <section class="panel active" id="tab-upload">
-      <div class="grid grid-2">
+      <div class="grid grid2">
         <div class="card">
           <h2>Upload</h2>
-          <p class="sub">选站点、区域、文件类型，上传 PDF / Excel / CSV，再补金额 / 日期 / 描述后提交。</p>
-
+          <p class="sub">选 Station / Zone / File Type，上传文件后自动归档到 Drive 的正确月份目录。</p>
           <div class="form-grid">
-            <div class="field">
-              <label for="upload-station">Station</label>
-              <select id="upload-station">
-                <option value="Defu">Defu</option>
-                <option value="Elias">Elias</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="upload-zone">Zone</label>
-              <input id="upload-zone" type="text" placeholder="例如 Zone A / EL-02">
-            </div>
+            <div class="field"><label>Station</label><select id="upload-station"><option value="Defu Station">Defu Station</option><option value="Elias Station">Elias Station</option></select></div>
+            <div class="field"><label>Zone</label><input id="upload-zone" type="text" placeholder="例如 Zone A / EL-02"></div>
           </div>
-
-          <div class="field">
-            <label for="upload-filetype">File Type</label>
-            <select id="upload-filetype">
-              <option value="Workdone Drawing">Workdone Drawing</option>
-              <option value="BBS">BBS</option>
-              <option value="Payment Cert">Payment Cert</option>
-              <option value="Claim Submission">Claim Submission</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label>File</label>
-            <div class="drop">
-              <strong id="selected-file-label">选择要上传的文件</strong>
-              <span>支持 PDF、Excel（.xlsx / .xls）和 CSV。非 PDF 文件只做归档，不做 OCR 解析。</span>
-              <input id="upload-file" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv">
-            </div>
-          </div>
-
+          <div class="field"><label>File Type</label><select id="upload-filetype"><option value="Workdone Drawing">Workdone Drawing</option><option value="BBS">BBS</option><option value="Payment Cert">Payment Cert</option><option value="Claim Submission">Claim Submission</option><option value="Other">Other</option></select></div>
+          <div class="field"><label>File</label><div class="drop"><strong id="selected-file-label">选择要上传的文件</strong><span>支持 PDF、Excel（.xlsx / .xls）和 CSV。非 PDF 文件只做归档，不做 OCR 解析。</span><input id="upload-file" type="file" accept=".pdf,.xlsx,.xls,.csv,application/pdf,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,text/csv"></div></div>
           <div class="form-grid">
-            <div class="field">
-              <label for="upload-amount">Amount (SGD)</label>
-              <input id="upload-amount" type="number" min="0" step="0.01" placeholder="0.00">
-            </div>
-            <div class="field">
-              <label for="upload-date">Date</label>
-              <input id="upload-date" type="date">
-            </div>
+            <div class="field"><label>Amount (SGD)</label><input id="upload-amount" type="number" min="0" step="0.01" placeholder="0.00"></div>
+            <div class="field"><label>Date</label><input id="upload-date" type="date"></div>
           </div>
-
-          <div class="field">
-            <label for="upload-description">Description</label>
-            <textarea id="upload-description" placeholder="手动填写说明，例如 scope / reference / remark"></textarea>
-          </div>
-
-          <div class="progress-wrap" id="upload-progress-wrap">
-            <div class="progress-label">
-              <span id="upload-progress-text">Uploading...</span>
-              <span id="upload-progress-percent">0%</span>
-            </div>
-            <div class="progress"><div class="progress-bar" id="upload-progress-bar"></div></div>
-          </div>
-
-          <div class="actions">
-            <button class="btn btn-primary" id="upload-submit-btn" onclick="submitUpload()">Submit</button>
-            <button class="btn btn-secondary" onclick="resetUploadForm()">Reset</button>
-          </div>
+          <div class="field"><label>Description</label><textarea id="upload-description" placeholder="手动填写说明，例如 scope / reference / remark"></textarea></div>
+          <div class="progress-wrap" id="upload-progress-wrap"><div class="progress-label"><span id="upload-progress-text">Uploading...</span><span id="upload-progress-percent">0%</span></div><div class="progress"><div class="progress-bar" id="upload-progress-bar"></div></div></div>
+          <div class="actions"><button class="btn btn-primary" id="upload-submit-btn" onclick="submitUpload()">Submit</button><button class="btn btn-secondary" onclick="resetUploadForm()">Reset</button></div>
           <p class="hint" id="upload-helper">还没上传文件。</p>
         </div>
-
         <div class="card">
           <h2>Latest Upload</h2>
-          <p class="sub">提交成功后，这里会显示刚上传的记录与 Drive 链接。</p>
+          <p class="sub">上传成功后，会显示 Drive 完整路径、文件链接和解析状态。</p>
           <div class="meta">
-            <div class="meta-box">
-              <div class="meta-k">File</div>
-              <div class="meta-v" id="latest-file-name">-</div>
-            </div>
-            <div class="meta-box">
-              <div class="meta-k">Status</div>
-              <div class="meta-v" id="latest-status">-</div>
-            </div>
-            <div class="meta-box">
-              <div class="meta-k">Drive</div>
-              <div class="meta-v" id="latest-drive"><span class="sub">No link yet</span></div>
-            </div>
+            <div class="meta-box"><div class="meta-k">File</div><div class="meta-v" id="latest-file-name">-</div></div>
+            <div class="meta-box"><div class="meta-k">Status</div><div class="meta-v" id="latest-status">-</div></div>
+            <div class="meta-box"><div class="meta-k">Drive</div><div class="meta-v" id="latest-drive"><span class="sub">No link yet</span></div></div>
           </div>
-          <div class="field">
-            <label>Saved Description</label>
-            <textarea id="latest-description" readonly placeholder="提交后显示"></textarea>
-          </div>
-          <div class="field" style="margin-bottom:0">
-            <label>OCR Preview</label>
-            <textarea id="latest-preview" readonly placeholder="若后端有返回 OCR / analysis，这里显示"></textarea>
-          </div>
+          <div class="field"><label>Folder Path</label><textarea id="latest-folder-path" readonly placeholder="上传后显示完整路径"></textarea></div>
+          <div class="field"><label>Saved Description</label><textarea id="latest-description" readonly placeholder="提交后显示"></textarea></div>
+          <div class="field" style="margin-bottom:0"><label>OCR Preview</label><textarea id="latest-preview" readonly placeholder="若后端有返回 OCR / analysis，这里显示"></textarea></div>
         </div>
       </div>
     </section>
 
     <section class="panel" id="tab-files">
       <div class="card">
-        <div class="section-title">
-          <div>
-            <h2 style="margin:0">Files</h2>
-            <p class="sub" style="margin:6px 0 0">按站点 / Zone / 类型筛选，直接打开 Drive 预览或删除。</p>
-          </div>
-          <button class="btn btn-secondary" style="width:auto" onclick="loadFiles()">Refresh</button>
+        <h2>Files</h2>
+        <p class="sub" style="margin-bottom:14px">树形结构按 Station → Month → File Type 展示。默认展开当月，支持实时搜索文件名。</p>
+        <div class="search-row">
+          <div class="field" style="margin:0"><label>Search</label><input id="search-keyword" type="text" placeholder="🔍 搜索文件名..." oninput="renderTree()"></div>
+          <div class="field" style="margin:0"><label>Station</label><select id="filter-station" onchange="renderTree()"><option value="">All</option><option value="Defu Station">Defu Station</option><option value="Elias Station">Elias Station</option></select></div>
+          <div class="field" style="margin:0"><label>Zone</label><input id="filter-zone" type="text" placeholder="Search zone" oninput="renderTree()"></div>
+          <div class="field" style="margin:0"><label>Month</label><input id="filter-month" type="month" onchange="renderTree()"></div>
         </div>
-
-        <div class="filters">
-          <div class="field" style="margin:0">
-            <label for="filter-station">Station</label>
-            <select id="filter-station" onchange="renderFiles()">
-              <option value="">All</option>
-              <option value="Defu">Defu</option>
-              <option value="Elias">Elias</option>
-            </select>
-          </div>
-          <div class="field" style="margin:0">
-            <label for="filter-zone">Zone</label>
-            <input id="filter-zone" type="text" placeholder="Search zone" oninput="renderFiles()">
-          </div>
-          <div class="field" style="margin:0">
-            <label for="filter-type">File Type</label>
-            <select id="filter-type" onchange="renderFiles()">
-              <option value="">All</option>
-              <option value="Workdone Drawing">Workdone Drawing</option>
-              <option value="BBS">BBS</option>
-              <option value="Payment Cert">Payment Cert</option>
-              <option value="Claim Submission">Claim Submission</option>
-            </select>
-          </div>
-          <div class="field" style="margin:0">
-            <label for="filter-month">Month</label>
-            <input id="filter-month" type="month" onchange="renderFiles()">
-          </div>
-        </div>
-
-        <div class="list" id="files-list"></div>
+        <div class="actions" style="margin-bottom:12px"><button class="btn btn-secondary" onclick="loadFiles()">Refresh</button></div>
+        <div class="tree" id="files-tree"></div>
       </div>
     </section>
 
     <section class="panel" id="tab-summary">
       <div class="stats" id="summary-stats"></div>
-      <div class="grid grid-2">
-        <div class="card">
-          <div class="section-title">
-            <div>
-              <h2 style="margin:0">Monthly Summary</h2>
-              <p class="sub" style="margin:6px 0 0">按月统计文件数量和金额。</p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Month</th><th>Files</th><th>Amount</th></tr></thead>
-              <tbody id="summary-months"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="card">
-          <div class="section-title">
-            <div>
-              <h2 style="margin:0">By Station</h2>
-              <p class="sub" style="margin:6px 0 0">按站点统计文件数量和金额。</p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead><tr><th>Station</th><th>Files</th><th>Amount</th></tr></thead>
-              <tbody id="summary-stations"></tbody>
-            </table>
-          </div>
-        </div>
+      <div class="grid grid2">
+        <div class="card"><h2>按月统计</h2><div class="table-wrap"><table><thead><tr><th>Month</th><th>Files</th><th>Amount</th></tr></thead><tbody id="summary-months"></tbody></table></div></div>
+        <div class="card"><h2>按站点统计</h2><div class="table-wrap"><table><thead><tr><th>Station</th><th>Files</th><th>Amount</th></tr></thead><tbody id="summary-stations"></tbody></table></div></div>
+      </div>
+      <div class="grid" style="margin-top:16px">
+        <div class="card"><h2>按文件类型统计</h2><div class="table-wrap"><table><thead><tr><th>Type</th><th>Files</th></tr></thead><tbody id="summary-types"></tbody></table></div></div>
+        <div class="card"><h2>跨系统总览</h2><div class="table-wrap"><table><thead><tr><th>System</th><th>Files</th><th>Size</th><th>Last Upload</th></tr></thead><tbody id="cross-system"></tbody></table></div></div>
       </div>
     </section>
   </div>
 
-  <div class="tabs">
-    <div class="tabs-inner">
-      <button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Upload</button>
-      <button class="tab-btn" data-tab="files" onclick="switchTab('files')">Files</button>
-      <button class="tab-btn" data-tab="summary" onclick="switchTab('summary')">Summary</button>
-    </div>
-  </div>
+  <div class="tabs"><div class="tabs-inner"><button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Upload</button><button class="tab-btn" data-tab="files" onclick="switchTab('files')">Files</button><button class="tab-btn" data-tab="summary" onclick="switchTab('summary')">Summary</button></div></div>
 
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbwbgegb2u0_CTlObOzFVlySrwMQcR1-RodV6z39wITT_unATLujFuQwmKZkMBoinyW_/exec';
-    let filesState = [];
-    let summaryState = { totalFiles: 0, totalAmount: 0, byMonth: [], byStation: [], byType: [] };
-    let latestUpload = null;
-
-    function setStatus(text){
-      document.getElementById('app-status').textContent = text;
-    }
-
-    function money(v){
-      return Number(v || 0).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function esc(v){
-      return String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
-    }
-
-    function switchTab(name){
-      document.querySelectorAll('.panel').forEach(el => el.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-      document.getElementById(`tab-${name}`).classList.add('active');
-      document.querySelectorAll(`.tab-btn[data-tab="${name}"]`).forEach(el => el.classList.add('active'));
-      if(name === 'files') renderFiles();
-      if(name === 'summary') renderSummary();
-    }
-
-    async function apiFetch(action, method = 'GET', body = null){
-      const url = method === 'GET'
-        ? `${API_URL}?${new URLSearchParams({ action, ...(body || {}) }).toString()}`
-        : API_URL;
-      const res = await fetch(url, {
-        method,
-        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
-        body: method === 'GET' ? undefined : JSON.stringify({ action, ...(body || {}) })
-      });
-      const data = await res.json();
-      if(!data.success) throw new Error(data.error || 'Request failed');
-      return data;
-    }
-
-    function guessMimeType(name){
-      const lower = String(name || '').toLowerCase();
-      if(lower.endsWith('.pdf')) return 'application/pdf';
-      if(lower.endsWith('.xlsx')) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-      if(lower.endsWith('.xls')) return 'application/vnd.ms-excel';
-      if(lower.endsWith('.csv')) return 'text/csv';
-      return 'application/octet-stream';
-    }
-
-    function uploadWithProgress(payload){
-      return new Promise((resolve, reject) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', API_URL);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.upload.onprogress = (e) => {
-          if(!e.lengthComputable) return;
-          const pct = Math.round((e.loaded / e.total) * 100);
-          document.getElementById('upload-progress-bar').style.width = pct + '%';
-          document.getElementById('upload-progress-percent').textContent = pct + '%';
-          document.getElementById('upload-progress-text').textContent = pct < 100 ? 'Uploading file...' : 'Processing...';
-        };
-        xhr.onload = () => {
-          try{
-            const json = JSON.parse(xhr.responseText || '{}');
-            if(!json.success) return reject(new Error(json.error || 'Upload failed'));
-            resolve(json);
-          }catch(err){ reject(err); }
-        };
-        xhr.onerror = () => reject(new Error('Network error during upload'));
-        xhr.send(JSON.stringify(payload));
-      });
-    }
-
-    function fileToBase64(file){
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    function showProgress(show){
-      document.getElementById('upload-progress-wrap').classList.toggle('show', !!show);
-      if(!show){
-        document.getElementById('upload-progress-bar').style.width = '0%';
-        document.getElementById('upload-progress-percent').textContent = '0%';
-        document.getElementById('upload-progress-text').textContent = 'Uploading...';
-      }
-    }
-
-    function hydrateLatest(file){
-      latestUpload = file;
-      document.getElementById('latest-file-name').textContent = file.FileName || '-';
-      document.getElementById('latest-status').textContent = file.Status || 'Saved';
-      document.getElementById('latest-drive').innerHTML = file.DriveURL ? `<a href="${file.DriveURL}" target="_blank" rel="noopener">Open Drive Preview</a>` : '<span class="sub">No link</span>';
-      document.getElementById('latest-description').value = file.Description || '';
-      document.getElementById('latest-preview').value = file.analysis?.extractedTextPreview || (file.analysis?.skipped ? 'Non-PDF file stored without OCR parsing.' : '');
-    }
-
-    async function submitUpload(){
-      const fileInput = document.getElementById('upload-file');
-      const file = fileInput.files[0];
-      if(!file){ alert('请先选择文件。'); return; }
-      const allowedTypes = [
-        'application/pdf',
-        'application/vnd.ms-excel',
-        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'text/csv',
-        'application/csv'
-      ];
-      const allowedExt = /\.(pdf|xlsx|xls|csv)$/i;
-      if((file.type && !allowedTypes.includes(file.type)) && !allowedExt.test(file.name || '')){
-        alert('只允许 PDF / Excel / CSV。');
-        return;
-      }
-
-      const btn = document.getElementById('upload-submit-btn');
-      btn.disabled = true;
-      showProgress(true);
-      setStatus('Uploading');
-      document.getElementById('upload-helper').textContent = '正在上传，请稍等…';
-
-      try{
-        const fileData = await fileToBase64(file);
-        const result = await uploadWithProgress({
-          action: 'uploadFile',
-          station: document.getElementById('upload-station').value,
-          zone: document.getElementById('upload-zone').value.trim(),
-          fileType: document.getElementById('upload-filetype').value,
-          fileName: file.name,
-          mimeType: file.type || guessMimeType(file.name),
-          fileData,
-          amount: document.getElementById('upload-amount').value,
-          date: document.getElementById('upload-date').value,
-          description: document.getElementById('upload-description').value.trim()
-        });
-
-        let uploaded = result.file;
-        const manualAmount = document.getElementById('upload-amount').value;
-        const manualDate = document.getElementById('upload-date').value;
-        const manualDescription = document.getElementById('upload-description').value.trim();
-
-        if(uploaded && (manualAmount || manualDate || manualDescription)){
-          const updateRes = await apiFetch('updateFile', 'POST', {
-            id: uploaded.ID,
-            station: document.getElementById('upload-station').value,
-            zone: document.getElementById('upload-zone').value.trim(),
-            fileType: document.getElementById('upload-filetype').value,
-            amount: manualAmount,
-            date: manualDate,
-            description: manualDescription,
-            status: 'Saved'
-          });
-          uploaded = updateRes.file || uploaded;
-        }
-
-        hydrateLatest(uploaded || {});
-        document.getElementById('upload-helper').textContent = '上传完成，已写入系统。';
-        setStatus('Uploaded');
-        await Promise.all([loadFiles(false), loadSummary(false)]);
-      }catch(err){
-        console.error(err);
-        alert(err.message || 'Upload failed');
-        document.getElementById('upload-helper').textContent = '上传失败，请重试。';
-        setStatus('Error');
-      }finally{
-        btn.disabled = false;
-        showProgress(false);
-      }
-    }
-
-    function resetUploadForm(){
-      document.getElementById('upload-zone').value = '';
-      document.getElementById('upload-amount').value = '';
-      document.getElementById('upload-date').value = '';
-      document.getElementById('upload-description').value = '';
-      document.getElementById('upload-file').value = '';
-      document.getElementById('selected-file-label').textContent = '选择要上传的文件';
-      document.getElementById('upload-helper').textContent = '表单已清空。';
-    }
-
-    async function loadFiles(updateStatus = true){
-      if(updateStatus) setStatus('Loading Files');
-      const res = await apiFetch('getFiles');
-      filesState = res.files || [];
-      renderFiles();
-      if(updateStatus) setStatus('Ready');
-    }
-
-    async function loadSummary(updateStatus = true){
-      if(updateStatus) setStatus('Loading Summary');
-      const res = await apiFetch('getSummary');
-      summaryState = res.summary || summaryState;
-      renderSummary();
-      if(updateStatus) setStatus('Ready');
-    }
-
-    function filteredFiles(){
-      const station = document.getElementById('filter-station').value;
-      const zone = document.getElementById('filter-zone').value.trim().toLowerCase();
-      const type = document.getElementById('filter-type').value;
-      const month = document.getElementById('filter-month').value;
-      return filesState.filter(f => {
-        const fileMonth = String(f.DocDate || f.Date || '').slice(0,7);
-        return (!station || f.Station === station)
-          && (!zone || String(f.Zone || '').toLowerCase().includes(zone))
-          && (!type || f.FileType === type)
-          && (!month || fileMonth === month);
-      });
-    }
-
-    function renderFiles(){
-      const list = document.getElementById('files-list');
-      const items = filteredFiles();
-      if(!items.length){
-        list.innerHTML = '<div class="empty">没有符合筛选条件的文件。</div>';
-        return;
-      }
-      list.innerHTML = items.map(file => `
-        <div class="file-card">
-          <div class="file-top">
-            <div>
-              <div class="file-title">${esc(file.FileName || 'Untitled PDF')}</div>
-              <div class="file-sub">${esc(file.Description || 'No description')}</div>
-            </div>
-            <div class="badge">${esc(file.Status || 'Saved')}</div>
-          </div>
-          <div class="badges">
-            <span class="badge">${esc(file.Station || '-')}</span>
-            <span class="badge">${esc(file.Zone || '-')}</span>
-            <span class="badge">${esc(file.FileType || '-')}</span>
-            <span class="badge">${esc((file.DocDate || file.Date || '-'))}</span>
-            <span class="badge">SGD ${money(file.Amount || 0)}</span>
-          </div>
-          <div class="file-actions">
-            <button class="btn btn-secondary" onclick="openDrive('${encodeURIComponent(file.DriveURL || '')}')">Open</button>
-            <button class="btn btn-danger" onclick="removeFile('${esc(file.ID || '')}')">Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function openDrive(url){
-      const decoded = decodeURIComponent(url || '');
-      if(!decoded){ alert('No Drive URL found.'); return; }
-      window.open(decoded, '_blank', 'noopener');
-    }
-
-    async function removeFile(id){
-      if(!id) return;
-      if(!confirm('确认删除这个文件记录？')) return;
-      try{
-        setStatus('Deleting');
-        await apiFetch('deleteFile', 'POST', { id });
-        await Promise.all([loadFiles(false), loadSummary(false)]);
-        setStatus('Ready');
-      }catch(err){
-        console.error(err);
-        alert(err.message || 'Delete failed');
-        setStatus('Error');
-      }
-    }
-
-    function renderSummary(){
-      const stats = document.getElementById('summary-stats');
-      const byMonth = summaryState.byMonth || [];
-      const byStation = summaryState.byStation || [];
-      stats.innerHTML = `
-        <div class="stat"><div class="k">Total Files</div><div class="v">${summaryState.totalFiles || 0}</div></div>
-        <div class="stat"><div class="k">Total Amount</div><div class="v">SGD ${money(summaryState.totalAmount || 0)}</div></div>
-        <div class="stat"><div class="k">Months</div><div class="v">${byMonth.length}</div></div>
-        <div class="stat"><div class="k">Stations</div><div class="v">${byStation.length}</div></div>
-      `;
-
-      document.getElementById('summary-months').innerHTML = byMonth.length
-        ? byMonth.map(row => `<tr><td>${esc(row.month || '-')}</td><td>${esc(row.count || 0)}</td><td>SGD ${money(row.amount || 0)}</td></tr>`).join('')
-        : '<tr><td colspan="3" class="empty">暂无月度数据</td></tr>';
-
-      document.getElementById('summary-stations').innerHTML = byStation.length
-        ? byStation.map(row => `<tr><td>${esc(row.station || '-')}</td><td>${esc(row.count || 0)}</td><td>SGD ${money(row.amount || 0)}</td></tr>`).join('')
-        : '<tr><td colspan="3" class="empty">暂无站点数据</td></tr>';
-    }
-
-    document.getElementById('upload-file').addEventListener('change', (e) => {
-      const f = e.target.files[0];
-      document.getElementById('selected-file-label').textContent = f ? f.name : '选择要上传的文件';
-    });
-
-    async function init(){
-      try{
-        setStatus('Loading');
-        await Promise.all([loadFiles(false), loadSummary(false)]);
-        setStatus('Ready');
-      }catch(err){
-        console.error(err);
-        setStatus('Error');
-        alert(err.message || 'Failed to load data');
-      }
-    }
-
+    let filesState = []; let summaryState = { totalFiles:0,totalAmount:0,totalSize:0,byMonth:[],byStation:[],byType:[] }; let crossSystemState = { systems: [] };
+    const treeState = new Set();
+    function setStatus(text){ document.getElementById('app-status').textContent = text; }
+    function money(v){ return Number(v || 0).toLocaleString('en-SG',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+    function esc(v){ return String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s])); }
+    function fmtBytes(v){ const n = Number(v||0); if(n<1024) return n + ' B'; if(n<1024*1024) return (n/1024).toFixed(1) + ' KB'; return (n/1024/1024).toFixed(2) + ' MB'; }
+    function switchTab(name){ document.querySelectorAll('.panel').forEach(el=>el.classList.remove('active')); document.querySelectorAll('.tab-btn').forEach(el=>el.classList.remove('active')); document.getElementById(`tab-${name}`).classList.add('active'); document.querySelectorAll(`.tab-btn[data-tab="${name}"]`).forEach(el=>el.classList.add('active')); if(name==='files') renderTree(); if(name==='summary') renderSummary(); }
+    async function apiFetch(action, method='GET', body=null){ const url = method==='GET' ? `${API_URL}?${new URLSearchParams({action,...(body||{})}).toString()}` : API_URL; const res = await fetch(url,{method,headers:method==='GET'?{}:{'Content-Type':'application/json'},body:method==='GET'?undefined:JSON.stringify({action,...(body||{})})}); const data = await res.json(); if(!data.success) throw new Error(data.error || 'Request failed'); return data; }
+    function guessMimeType(name){ const lower = String(name||'').toLowerCase(); if(lower.endsWith('.pdf')) return 'application/pdf'; if(lower.endsWith('.xlsx')) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'; if(lower.endsWith('.xls')) return 'application/vnd.ms-excel'; if(lower.endsWith('.csv')) return 'text/csv'; return 'application/octet-stream'; }
+    function uploadWithProgress(payload){ return new Promise((resolve,reject)=>{ const xhr=new XMLHttpRequest(); xhr.open('POST',API_URL); xhr.setRequestHeader('Content-Type','application/json'); xhr.upload.onprogress=(e)=>{ if(!e.lengthComputable) return; const pct=Math.round(e.loaded/e.total*100); document.getElementById('upload-progress-bar').style.width=pct+'%'; document.getElementById('upload-progress-percent').textContent=pct+'%'; document.getElementById('upload-progress-text').textContent=pct<100?'Uploading file...':'Processing...'; }; xhr.onload=()=>{ try{ const json=JSON.parse(xhr.responseText||'{}'); if(!json.success) return reject(new Error(json.error||'Upload failed')); resolve(json); }catch(err){ reject(err); } }; xhr.onerror=()=>reject(new Error('Network error during upload')); xhr.send(JSON.stringify(payload)); }); }
+    function fileToBase64(file){ return new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=()=>resolve(String(reader.result).split(',')[1]||''); reader.onerror=reject; reader.readAsDataURL(file); }); }
+    function showProgress(show){ document.getElementById('upload-progress-wrap').classList.toggle('show',!!show); if(!show){ document.getElementById('upload-progress-bar').style.width='0%'; document.getElementById('upload-progress-percent').textContent='0%'; document.getElementById('upload-progress-text').textContent='Uploading...'; } }
+    function hydrateLatest(file){ document.getElementById('latest-file-name').textContent=file.FileName||'-'; document.getElementById('latest-status').textContent=file.Status||'Saved'; document.getElementById('latest-drive').innerHTML=file.DriveURL?`<a href="${file.DriveURL}" target="_blank" rel="noopener">Open Drive Preview</a>`:'<span class="sub">No link</span>'; document.getElementById('latest-folder-path').value=file.FolderPath||''; document.getElementById('latest-description').value=file.Description||''; document.getElementById('latest-preview').value=file.analysis?.extractedTextPreview || (file.analysis?.skipped ? 'Non-PDF file stored without OCR parsing.' : ''); }
+    async function submitUpload(){ const file = document.getElementById('upload-file').files[0]; if(!file){ alert('请先选择文件。'); return; } const allowedExt=/\.(pdf|xlsx|xls|csv)$/i; if((file.type && !['application/pdf','application/vnd.ms-excel','application/vnd.openxmlformats-officedocument.spreadsheetml.sheet','text/csv','application/csv'].includes(file.type)) && !allowedExt.test(file.name||'')){ alert('只允许 PDF / Excel / CSV。'); return; } const btn=document.getElementById('upload-submit-btn'); btn.disabled=true; showProgress(true); setStatus('Uploading'); document.getElementById('upload-helper').textContent='正在上传，请稍等…'; try{ const fileData=await fileToBase64(file); const result=await uploadWithProgress({ action:'uploadFile', station:document.getElementById('upload-station').value, zone:document.getElementById('upload-zone').value.trim(), fileType:document.getElementById('upload-filetype').value, fileName:file.name, mimeType:file.type || guessMimeType(file.name), fileData, amount:document.getElementById('upload-amount').value, date:document.getElementById('upload-date').value, description:document.getElementById('upload-description').value.trim() }); let uploaded=result.file; const manualAmount=document.getElementById('upload-amount').value; const manualDate=document.getElementById('upload-date').value; const manualDescription=document.getElementById('upload-description').value.trim(); if(uploaded && (manualAmount || manualDate || manualDescription)){ const updateRes=await apiFetch('updateFile','POST',{ id:uploaded.ID, station:document.getElementById('upload-station').value, zone:document.getElementById('upload-zone').value.trim(), fileType:document.getElementById('upload-filetype').value, amount:manualAmount, date:manualDate, description:manualDescription, status:'Saved' }); uploaded=updateRes.file||uploaded; } hydrateLatest(uploaded||{}); document.getElementById('upload-helper').textContent='上传完成，已写入系统。'; setStatus('Uploaded'); await Promise.all([loadFiles(false), loadSummary(false), loadCrossSystem(false)]); switchTab('files'); }catch(err){ console.error(err); alert(err.message||'Upload failed'); document.getElementById('upload-helper').textContent='上传失败，请重试。'; setStatus('Error'); }finally{ btn.disabled=false; showProgress(false); } }
+    function resetUploadForm(){ document.getElementById('upload-zone').value=''; document.getElementById('upload-amount').value=''; document.getElementById('upload-date').value=''; document.getElementById('upload-description').value=''; document.getElementById('upload-file').value=''; document.getElementById('selected-file-label').textContent='选择要上传的文件'; document.getElementById('upload-helper').textContent='表单已清空。'; }
+    async function loadFiles(updateStatus=true){ if(updateStatus) setStatus('Loading Files'); const res=await apiFetch('getFiles'); filesState=res.files||[]; renderTree(); if(updateStatus) setStatus('Ready'); }
+    async function loadSummary(updateStatus=true){ if(updateStatus) setStatus('Loading Summary'); const res=await apiFetch('getSummary'); summaryState=res.summary||summaryState; renderSummary(); if(updateStatus) setStatus('Ready'); }
+    async function loadCrossSystem(updateStatus=true){ const res=await apiFetch('getCrossSystemSummary'); crossSystemState=res.summary||crossSystemState; renderSummary(); if(updateStatus) setStatus('Ready'); }
+    function filteredFiles(){ const keyword=String(document.getElementById('search-keyword').value||'').toLowerCase(); const station=document.getElementById('filter-station').value; const zone=String(document.getElementById('filter-zone').value||'').toLowerCase(); const month=document.getElementById('filter-month').value; return filesState.filter(f=>{ const fileMonth=String(f.DocDate||'').slice(0,7); return (!keyword || String(f.FileName||'').toLowerCase().includes(keyword)) && (!station || f.Station===station) && (!zone || String(f.Zone||'').toLowerCase().includes(zone)) && (!month || fileMonth===month); }); }
+    function groupTree(files){ const map={}; files.forEach(file=>{ const station=file.Station||'Unassigned'; const month=String(file.DocDate||'Unknown').slice(0,7) || 'Unknown'; const type=file.FileType||'Unknown'; map[station]=map[station]||{}; map[station][month]=map[station][month]||{}; map[station][month][type]=map[station][month][type]||[]; map[station][month][type].push(file); }); return map; }
+    function ensureDefaultExpansions(tree){ const currentMonth=new Date().toISOString().slice(0,7); Object.keys(tree).forEach(station=>{ treeState.add('station:'+station); if(tree[station][currentMonth]){ treeState.add('month:'+station+':'+currentMonth); Object.keys(tree[station][currentMonth]).forEach(type=> treeState.add('type:'+station+':'+currentMonth+':'+type)); } }); }
+    function toggleTree(key){ if(treeState.has(key)) treeState.delete(key); else treeState.add(key); renderTree(); }
+    function renderTree(){ const list=document.getElementById('files-tree'); const items=filteredFiles(); if(!items.length){ list.innerHTML='<div class="empty">没有符合条件的文件。</div>'; return; } const tree=groupTree(items); ensureDefaultExpansions(tree); const stationHtml=Object.keys(tree).sort().map(station=>{ const stationKey='station:'+station; const stationOpen=treeState.has(stationKey); const monthHtml=Object.keys(tree[station]).sort().reverse().map(month=>{ const monthKey='month:'+station+':'+month; const monthOpen=treeState.has(monthKey); const types=tree[station][month]; const monthCount=Object.keys(types).reduce((sum,k)=>sum+types[k].length,0); const typeHtml=Object.keys(types).sort().map(type=>{ const typeKey='type:'+station+':'+month+':'+type; const typeOpen=treeState.has(typeKey); const fileHtml=types[type].sort((a,b)=>String(b.UploadedAt||'').localeCompare(String(a.UploadedAt||''))).map(file=>`<div class="tree-file"><div class="tree-file-top"><div><div class="tree-file-name">${esc(file.FileName||'Untitled')}</div><div class="tree-file-meta">${esc(file.Description||'No description')}<br>${esc(file.FolderPath||'')} · ${fmtBytes(file.FileSize||0)}</div></div><div class="badge">${esc(file.Status||'Saved')}</div></div><div class="badges"><span class="badge">${esc(file.Zone||'-')}</span><span class="badge">${esc(file.DocDate||'-')}</span><span class="badge">SGD ${money(file.Amount||0)}</span></div><div class="file-actions"><button class="btn btn-secondary" onclick="openDrive('${encodeURIComponent(file.DriveURL||'')}')">Open</button><button class="btn btn-danger" onclick="removeFile('${esc(file.ID||'')}')">Delete</button></div></div>`).join(''); return `<div class="tree-type"><div class="tree-head" onclick="toggleTree('${typeKey}')"><div><div class="tree-title">${esc(type)}</div><div class="tree-sub">${types[type].length} 个文件</div></div><div>${typeOpen?'▾':'▸'}</div></div><div class="tree-body ${typeOpen?'open':''}">${fileHtml}</div></div>`; }).join(''); return `<div class="tree-month"><div class="tree-head" onclick="toggleTree('${monthKey}')"><div><div class="tree-title">${esc(month)}</div><div class="tree-sub">${monthCount} 个文件</div></div><div>${monthOpen?'▾':'▸'}</div></div><div class="tree-body ${monthOpen?'open':''}">${typeHtml}</div></div>`; }).join(''); const stationCount=Object.keys(tree[station]).reduce((sum,m)=>sum+Object.keys(tree[station][m]).reduce((s,k)=>s+tree[station][m][k].length,0),0); return `<div class="tree-section"><div class="tree-head" onclick="toggleTree('${stationKey}')"><div><div class="tree-title">${esc(station)}</div><div class="tree-sub">${stationCount} 个文件</div></div><div>${stationOpen?'▾':'▸'}</div></div><div class="tree-body ${stationOpen?'open':''}">${monthHtml}</div></div>`; }).join(''); list.innerHTML=stationHtml; }
+    function openDrive(url){ const decoded=decodeURIComponent(url||''); if(!decoded){ alert('No Drive URL found.'); return; } window.open(decoded,'_blank','noopener'); }
+    async function removeFile(id){ if(!id) return; if(!confirm('确认删除这个文件记录？Drive 和 Sheet 会同步删除。')) return; try{ setStatus('Deleting'); await apiFetch('deleteFile','POST',{id}); await Promise.all([loadFiles(false), loadSummary(false), loadCrossSystem(false)]); setStatus('Ready'); }catch(err){ console.error(err); alert(err.message||'Delete failed'); setStatus('Error'); } }
+    function renderSummary(){ document.getElementById('summary-stats').innerHTML=`<div class="stat"><div class="k">Total Files</div><div class="v">${summaryState.totalFiles||0}</div></div><div class="stat"><div class="k">Total Amount</div><div class="v">SGD ${money(summaryState.totalAmount||0)}</div></div><div class="stat"><div class="k">Total Size</div><div class="v">${fmtBytes(summaryState.totalSize||0)}</div></div><div class="stat"><div class="k">Months</div><div class="v">${(summaryState.byMonth||[]).length}</div></div><div class="stat"><div class="k">Systems</div><div class="v">${(crossSystemState.systems||[]).length}</div></div>`; document.getElementById('summary-months').innerHTML=(summaryState.byMonth||[]).length ? summaryState.byMonth.map(row=>`<tr><td>${esc(row.month||'-')}</td><td>${esc(row.count||0)}</td><td>SGD ${money(row.amount||0)}</td></tr>`).join('') : '<tr><td colspan="3" class="empty">暂无月度数据</td></tr>'; document.getElementById('summary-stations').innerHTML=(summaryState.byStation||[]).length ? summaryState.byStation.map(row=>`<tr><td>${esc(row.station||'-')}</td><td>${esc(row.count||0)}</td><td>SGD ${money(row.amount||0)}</td></tr>`).join('') : '<tr><td colspan="3" class="empty">暂无站点数据</td></tr>'; document.getElementById('summary-types').innerHTML=(summaryState.byType||[]).length ? summaryState.byType.map(row=>`<tr><td>${esc(row.fileType||'-')}</td><td>${esc(row.count||0)}</td></tr>`).join('') : '<tr><td colspan="2" class="empty">暂无类型数据</td></tr>'; document.getElementById('cross-system').innerHTML=(crossSystemState.systems||[]).length ? crossSystemState.systems.map(row=>`<tr><td>${esc(row.name||'-')}</td><td>${esc(row.totalFiles||0)}</td><td>${fmtBytes(row.totalSize||0)}</td><td>${esc(row.lastUpload||'-')}</td></tr>`).join('') : '<tr><td colspan="4" class="empty">所有系统共 0 个文件 · 0 MB</td></tr>'; }
+    document.getElementById('upload-file').addEventListener('change',e=>{ const f=e.target.files[0]; document.getElementById('selected-file-label').textContent=f?f.name:'选择要上传的文件'; });
+    async function init(){ try{ setStatus('Loading'); document.getElementById('upload-date').value=new Date().toISOString().slice(0,10); document.getElementById('filter-month').value=new Date().toISOString().slice(0,7); await Promise.all([loadFiles(false),loadSummary(false),loadCrossSystem(false)]); setStatus('Ready'); }catch(err){ console.error(err); setStatus('Error'); alert(err.message||'Failed to load data'); } }
     init();
   </script>
 </body>
