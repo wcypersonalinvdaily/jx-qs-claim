@@ -1,638 +1,595 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>JX QS File Manager</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0f1117;--surface:#181c27;--surface2:#1e2333;--surface3:#242840;
-  --border:#2a2f45;--border2:#353c58;--ink:#e8ecf4;--ink2:#a0a8c0;--ink3:#626a88;
-  --accent:#4f8ef7;--accent-bg:rgba(79,142,247,.12);--green:#34d399;--green-bg:rgba(52,211,153,.12);
-  --amber:#fbbf24;--amber-bg:rgba(251,191,36,.12);--red:#f87171;--red-bg:rgba(248,113,113,.12);
-  --purple:#a78bfa;--purple-bg:rgba(167,139,250,.12);--shadow:0 4px 24px rgba(0,0,0,.4);--radius:10px;
-}
-body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;font-size:14px}
-.mono{font-family:'Space Mono',monospace}
-.header{background:var(--surface);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;justify-content:space-between;align-items:center}
-.header-brand{display:flex;flex-direction:column;gap:2px}
-.header-brand h1{font-size:1rem;font-weight:700}
-.header-brand p{font-size:.72rem;color:var(--ink3)}
-.tabs{display:flex;gap:2px;background:var(--surface2);border-bottom:1px solid var(--border);padding:0 24px}
-.tab-btn{padding:12px 20px;background:none;border:none;color:var(--ink3);font-family:'DM Sans',sans-serif;font-size:.85rem;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s}
-.tab-btn:hover{color:var(--ink)}
-.tab-btn.active{color:var(--accent);border-bottom-color:var(--accent)}
-.tab-panel{display:none;padding:24px}
-.tab-panel.active{display:block}
-.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border-radius:var(--radius);border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:.82rem;font-weight:500;transition:all .15s}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:#3d7de8}
-.btn-ghost{background:var(--surface3);color:var(--ink2);border:1px solid var(--border)}
-.btn-ghost:hover{border-color:var(--border2);color:var(--ink)}
-.btn-danger{background:var(--red-bg);color:var(--red);border:1px solid rgba(248,113,113,.3)}
-.btn-danger:hover{background:rgba(248,113,113,.2)}
-.btn:disabled{opacity:.6;cursor:not-allowed}
-.layout{display:grid;grid-template-columns:minmax(320px,420px) 1fr;gap:20px}
-.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
-.card-title{font-size:.85rem;font-weight:700;color:var(--ink3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.form-group{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
-.form-group label{font-size:.75rem;color:var(--ink3);font-weight:500}
-.form-group input,.form-group select,.form-group textarea{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--ink);padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:.85rem;width:100%}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--accent)}
-.form-group textarea{min-height:110px;resize:vertical}
-.dropzone{border:1px dashed var(--border2);border-radius:12px;background:linear-gradient(180deg,rgba(79,142,247,.06),rgba(79,142,247,.01));padding:18px;text-align:center}
-.dropzone strong{display:block;margin-bottom:6px}
-.dropzone p{color:var(--ink3);font-size:.8rem}
-.dropzone input{margin-top:12px}
-.meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
-.meta-item{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:12px}
-.meta-label{font-size:.7rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
-.meta-value{font-size:.92rem;color:var(--ink)}
-.meta-value.empty{color:var(--ink3)}
-.status-badge{display:inline-flex;align-items:center;gap:6px;font-size:.68rem;font-weight:700;padding:4px 9px;border-radius:999px;text-transform:uppercase;letter-spacing:.05em}
-.status-recognized{background:var(--green-bg);color:var(--green)}
-.status-needs-review{background:var(--amber-bg);color:var(--amber)}
-.status-saved{background:var(--accent-bg);color:var(--accent)}
-.status-error{background:var(--red-bg);color:var(--red)}
-.status-ready{background:var(--purple-bg);color:var(--purple)}
-.helper{font-size:.78rem;color:var(--ink3)}
-.filter-bar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-.filter-bar select,.filter-bar input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;color:var(--ink);padding:8px 12px;font-family:'DM Sans',sans-serif;font-size:.82rem}
-.table-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse}
-th{text-align:left;font-size:.72rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
-td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:.83rem;color:var(--ink2);vertical-align:top}
-tr:hover td{background:var(--surface2)}
-.actions{display:flex;gap:8px;flex-wrap:wrap}
-.empty{text-align:center;padding:48px 24px;color:var(--ink3)}
-.empty-icon{font-size:2.4rem;margin-bottom:12px}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
-.stat-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px}
-.stat-label{font-size:.72rem;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
-.stat-value{font-family:'Space Mono',monospace;font-size:1.4rem;font-weight:700}
-.chart-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:20px}
-.chart-title{font-size:.8rem;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:16px}
-.chart-bars{display:flex;align-items:flex-end;gap:8px;height:180px;padding-bottom:24px}
-.chart-bar-group{display:flex;flex-direction:column;align-items:center;gap:6px;flex:1;min-width:52px}
-.chart-bar{width:100%;background:linear-gradient(180deg,var(--accent),#305fbe);border-radius:6px 6px 0 0;min-height:2px}
-.chart-label{font-size:.68rem;color:var(--ink3)}
-.split{display:grid;grid-template-columns:1.1fr .9fr;gap:20px}
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;overflow-y:auto;padding:20px}
-.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px;width:100%;max-width:620px;margin:auto;position:relative}
-.modal-close{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--ink3);font-size:1.2rem;cursor:pointer}
-.modal-close:hover{color:var(--ink)}
-@media (max-width:900px){
-  .layout,.split{grid-template-columns:1fr}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>JX QS Claim</title>
+  <style>
+    :root{
+      --bg:#0b1020;
+      --panel:#121a2b;
+      --panel-2:#182238;
+      --panel-3:#202c47;
+      --border:#2a3654;
+      --text:#edf2ff;
+      --muted:#9aa8c7;
+      --accent:#5ea2ff;
+      --accent-2:#7cc4ff;
+      --good:#2dd4bf;
+      --danger:#fb7185;
+      --warning:#fbbf24;
+      --shadow:0 14px 40px rgba(0,0,0,.32);
+      --radius:18px;
+      --radius-sm:12px;
+      --tab-h:48px;
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,#09101d 0%,#0c1220 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    body{min-height:100vh}
+    a{color:var(--accent-2);text-decoration:none}
+    button,input,select,textarea{font:inherit}
+    .app{max-width:1180px;margin:0 auto;padding:18px 14px calc(90px + var(--safe-bottom))}
+    .hero{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;background:rgba(18,26,43,.86);backdrop-filter:blur(14px);border:1px solid rgba(94,162,255,.12);box-shadow:var(--shadow);padding:18px;border-radius:22px;position:sticky;top:10px;z-index:10}
+    .hero h1{margin:0 0 6px;font-size:1.1rem}
+    .hero p{margin:0;color:var(--muted);font-size:.92rem;line-height:1.45}
+    .pill{white-space:nowrap;padding:10px 14px;border-radius:999px;background:rgba(94,162,255,.12);border:1px solid rgba(94,162,255,.2);color:var(--accent-2);font-size:.84rem;font-weight:700}
+
+    .tabs{position:fixed;left:0;right:0;bottom:0;padding:12px 14px calc(12px + var(--safe-bottom));background:linear-gradient(180deg,rgba(9,16,29,0) 0%,rgba(9,16,29,.9) 24%,rgba(9,16,29,1) 100%);z-index:20}
+    .tabs-inner{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;background:rgba(18,26,43,.92);border:1px solid rgba(255,255,255,.06);border-radius:20px;padding:10px;box-shadow:var(--shadow)}
+    .tab-btn{height:var(--tab-h);border:none;border-radius:14px;background:transparent;color:var(--muted);font-weight:700;cursor:pointer;transition:.2s}
+    .tab-btn.active{background:linear-gradient(180deg,rgba(94,162,255,.2),rgba(94,162,255,.1));color:var(--text);border:1px solid rgba(94,162,255,.2)}
+
+    .panel{display:none;margin-top:16px}
+    .panel.active{display:block}
+    .grid{display:grid;gap:16px}
+    .grid-2{grid-template-columns:1.1fr .9fr}
+    .card{background:var(--panel);border:1px solid rgba(255,255,255,.06);box-shadow:var(--shadow);border-radius:var(--radius);padding:16px}
+    .card h2,.card h3{margin:0 0 14px}
+    .sub{color:var(--muted);font-size:.88rem;line-height:1.45}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .field{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+    .field label{font-size:.84rem;color:var(--muted);font-weight:700}
+    .field input,.field select,.field textarea{width:100%;border:1px solid var(--border);background:var(--panel-2);color:var(--text);padding:13px 14px;border-radius:14px;outline:none}
+    .field textarea{min-height:110px;resize:vertical}
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(94,162,255,.12)}
+    .drop{border:1.5px dashed rgba(124,196,255,.35);background:linear-gradient(180deg,rgba(94,162,255,.08),rgba(94,162,255,.02));border-radius:18px;padding:18px;text-align:center}
+    .drop strong{display:block;font-size:1rem;margin-bottom:8px}
+    .drop span{display:block;color:var(--muted);font-size:.9rem;line-height:1.45}
+    .drop input{margin-top:12px;width:100%}
+    .actions{display:flex;gap:10px;flex-wrap:wrap}
+    .btn{border:none;border-radius:14px;padding:13px 16px;font-weight:800;cursor:pointer}
+    .btn-primary{background:linear-gradient(180deg,var(--accent),#417df2);color:white}
+    .btn-secondary{background:var(--panel-3);color:var(--text);border:1px solid rgba(255,255,255,.08)}
+    .btn-danger{background:rgba(251,113,133,.12);color:#ff9db0;border:1px solid rgba(251,113,133,.22)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .hint{color:var(--muted);font-size:.86rem;line-height:1.45}
+
+    .progress-wrap{display:none;margin:12px 0 4px}
+    .progress-wrap.show{display:block}
+    .progress-label{display:flex;justify-content:space-between;font-size:.82rem;color:var(--muted);margin-bottom:7px}
+    .progress{height:10px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
+    .progress-bar{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--good));transition:width .18s ease}
+
+    .meta{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+    .meta-box{padding:14px;border-radius:16px;background:var(--panel-2);border:1px solid rgba(255,255,255,.05)}
+    .meta-k{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px}
+    .meta-v{font-weight:700;word-break:break-word}
+
+    .filters{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+    .list{display:grid;gap:12px}
+    .file-card{padding:14px;border-radius:16px;background:var(--panel-2);border:1px solid rgba(255,255,255,.05)}
+    .file-top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+    .file-title{font-size:.98rem;font-weight:800;line-height:1.3}
+    .file-sub{color:var(--muted);font-size:.85rem;line-height:1.45}
+    .badges{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+    .badge{padding:7px 10px;border-radius:999px;font-size:.76rem;font-weight:800;background:rgba(94,162,255,.1);color:var(--accent-2);border:1px solid rgba(94,162,255,.18)}
+    .file-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+    .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}
+    .stat{background:var(--panel);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:16px;box-shadow:var(--shadow)}
+    .stat .k{color:var(--muted);font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+    .stat .v{font-size:1.28rem;font-weight:900}
+    .section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}
+    .table-wrap{overflow:auto;border-radius:16px;border:1px solid rgba(255,255,255,.06)}
+    table{width:100%;border-collapse:collapse;min-width:520px;background:var(--panel)}
+    th,td{padding:12px 14px;border-bottom:1px solid rgba(255,255,255,.06);text-align:left}
+    th{font-size:.78rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+    td{font-size:.9rem}
+    .empty{padding:28px 12px;text-align:center;color:var(--muted)}
+
+    @media (max-width:960px){
+      .grid-2,.stats,.filters,.meta,.form-grid{grid-template-columns:1fr}
+      .hero{position:relative;top:auto;flex-direction:column}
+    }
+    @media (max-width:640px){
+      .app{padding:12px 12px calc(90px + var(--safe-bottom))}
+      .hero{padding:15px;border-radius:18px}
+      .card{padding:14px;border-radius:18px}
+      .btn{width:100%;justify-content:center}
+      .file-top{flex-direction:column}
+      .pill{align-self:flex-start}
+    }
+  </style>
 </head>
 <body>
-<div class="header">
-  <div class="header-brand">
-    <h1>⚡ QS Claim Manager</h1>
-    <p>Upload PDFs to Drive, extract fields, and track QS files by station and zone.</p>
-  </div>
-  <div class="status-badge status-ready" id="app-status">Ready</div>
-</div>
-
-<div class="tabs">
-  <button class="tab-btn active" onclick="switchTab('upload')">Upload</button>
-  <button class="tab-btn" onclick="switchTab('files')">Files</button>
-  <button class="tab-btn" onclick="switchTab('summary')">Summary</button>
-</div>
-
-<div class="tab-panel active" id="tab-upload">
-  <div class="layout">
-    <div class="card">
-      <div class="card-title">Upload PDF</div>
-      <div class="form-grid">
-        <div class="form-group">
-          <label>Station</label>
-          <select id="upload-station">
-            <option value="Defu">Defu</option>
-            <option value="Elias">Elias</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label>Zone</label>
-          <input type="text" id="upload-zone" placeholder="e.g. Zone A / EL-02">
-        </div>
+  <div class="app">
+    <div class="hero">
+      <div>
+        <h1>📁 JX QS Claim</h1>
+        <p>工地手机可直接上传 PDF、管理文件、查看月度汇总。</p>
       </div>
-      <div class="form-group">
-        <label>File Type</label>
-        <select id="upload-filetype">
-          <option value="Workdone Drawing">Workdone Drawing</option>
-          <option value="BBS">BBS</option>
-          <option value="Payment Cert">Payment Cert</option>
-          <option value="Claim Submission">Claim Submission</option>
-        </select>
-      </div>
-      <div class="dropzone">
-        <strong>Select a PDF to upload</strong>
-        <p>The file will be saved to Google Drive first, then the backend will try to detect amount, date, and description.</p>
-        <input type="file" id="upload-file" accept="application/pdf">
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-        <button class="btn btn-primary" id="upload-analyze-btn" onclick="uploadAndAnalyze()">Upload & Analyze</button>
-        <button class="btn btn-ghost" id="upload-save-btn" onclick="saveCurrentUploadEdits()" disabled>Save Metadata</button>
-      </div>
-      <div class="helper" style="margin-top:12px" id="upload-helper">No file uploaded yet.</div>
+      <div class="pill" id="app-status">Ready</div>
     </div>
 
-    <div class="card">
-      <div class="card-title">Recognized Fields</div>
-      <div class="meta-grid" style="margin-bottom:16px">
-        <div class="meta-item">
-          <div class="meta-label">Uploaded File</div>
-          <div class="meta-value empty" id="recognized-file-name">No file selected</div>
-        </div>
-        <div class="meta-item">
-          <div class="meta-label">Detection Status</div>
-          <div class="meta-value" id="recognized-status">Pending</div>
-        </div>
-        <div class="meta-item">
-          <div class="meta-label">Google Drive Link</div>
-          <div class="meta-value empty" id="recognized-drive-link">Available after upload</div>
-        </div>
-      </div>
-      <div class="form-group">
-        <label>Amount (SGD)</label>
-        <input type="number" id="recognized-amount" placeholder="0.00" min="0" step="0.01">
-      </div>
-      <div class="form-group">
-        <label>Date</label>
-        <input type="date" id="recognized-date">
-      </div>
-      <div class="form-group">
-        <label>Description</label>
-        <textarea id="recognized-description" placeholder="Detected or manually edited description"></textarea>
-      </div>
-      <div class="form-group" style="margin-bottom:0">
-        <label>OCR Preview</label>
-        <textarea id="recognized-preview" placeholder="Text preview from the PDF extraction attempt" readonly></textarea>
-      </div>
-    </div>
-  </div>
-</div>
+    <section class="panel active" id="tab-upload">
+      <div class="grid grid-2">
+        <div class="card">
+          <h2>Upload</h2>
+          <p class="sub">选站点、区域、文件类型，上传 PDF，再补金额 / 日期 / 描述后提交。</p>
 
-<div class="tab-panel" id="tab-files">
-  <div class="card" style="margin-bottom:20px">
-    <div class="card-title">Filter Files</div>
-    <div class="filter-bar">
-      <select id="filter-station" onchange="renderFiles()">
-        <option value="">All Stations</option>
-        <option value="Defu">Defu</option>
-        <option value="Elias">Elias</option>
-      </select>
-      <input type="text" id="filter-zone" placeholder="Filter by Zone" oninput="renderFiles()">
-      <select id="filter-filetype" onchange="renderFiles()">
-        <option value="">All Types</option>
-        <option value="Workdone Drawing">Workdone Drawing</option>
-        <option value="BBS">BBS</option>
-        <option value="Payment Cert">Payment Cert</option>
-        <option value="Claim Submission">Claim Submission</option>
-      </select>
-      <input type="month" id="filter-month" onchange="renderFiles()">
-      <button class="btn btn-ghost" onclick="reloadFiles()">Refresh</button>
-    </div>
-  </div>
-  <div class="card">
-    <div class="card-title">Uploaded Files</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Station / Zone</th>
-            <th>Type</th>
-            <th>File</th>
-            <th>Date</th>
-            <th>Amount</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="files-table"></tbody>
-      </table>
-    </div>
-  </div>
-</div>
+          <div class="form-grid">
+            <div class="field">
+              <label for="upload-station">Station</label>
+              <select id="upload-station">
+                <option value="Defu">Defu</option>
+                <option value="Elias">Elias</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="upload-zone">Zone</label>
+              <input id="upload-zone" type="text" placeholder="例如 Zone A / EL-02">
+            </div>
+          </div>
 
-<div class="tab-panel" id="tab-summary">
-  <div class="stat-grid" id="summary-stats"></div>
-  <div class="split">
-    <div>
-      <div class="chart-wrap">
-        <div class="chart-title">Amount by Month</div>
-        <div class="chart-bars" id="summary-chart"></div>
+          <div class="field">
+            <label for="upload-filetype">File Type</label>
+            <select id="upload-filetype">
+              <option value="Workdone Drawing">Workdone Drawing</option>
+              <option value="BBS">BBS</option>
+              <option value="Payment Cert">Payment Cert</option>
+              <option value="Claim Submission">Claim Submission</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>PDF</label>
+            <div class="drop">
+              <strong id="selected-file-label">选择要上传的 PDF</strong>
+              <span>支持手机直接选文件。上传后走原有 Apps Script API。</span>
+              <input id="upload-file" type="file" accept="application/pdf">
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="upload-amount">Amount (SGD)</label>
+              <input id="upload-amount" type="number" min="0" step="0.01" placeholder="0.00">
+            </div>
+            <div class="field">
+              <label for="upload-date">Date</label>
+              <input id="upload-date" type="date">
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="upload-description">Description</label>
+            <textarea id="upload-description" placeholder="手动填写说明，例如 scope / reference / remark"></textarea>
+          </div>
+
+          <div class="progress-wrap" id="upload-progress-wrap">
+            <div class="progress-label">
+              <span id="upload-progress-text">Uploading...</span>
+              <span id="upload-progress-percent">0%</span>
+            </div>
+            <div class="progress"><div class="progress-bar" id="upload-progress-bar"></div></div>
+          </div>
+
+          <div class="actions">
+            <button class="btn btn-primary" id="upload-submit-btn" onclick="submitUpload()">Submit</button>
+            <button class="btn btn-secondary" onclick="resetUploadForm()">Reset</button>
+          </div>
+          <p class="hint" id="upload-helper">还没上传文件。</p>
+        </div>
+
+        <div class="card">
+          <h2>Latest Upload</h2>
+          <p class="sub">提交成功后，这里会显示刚上传的记录与 Drive 链接。</p>
+          <div class="meta">
+            <div class="meta-box">
+              <div class="meta-k">File</div>
+              <div class="meta-v" id="latest-file-name">-</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-k">Status</div>
+              <div class="meta-v" id="latest-status">-</div>
+            </div>
+            <div class="meta-box">
+              <div class="meta-k">Drive</div>
+              <div class="meta-v" id="latest-drive"><span class="sub">No link yet</span></div>
+            </div>
+          </div>
+          <div class="field">
+            <label>Saved Description</label>
+            <textarea id="latest-description" readonly placeholder="提交后显示"></textarea>
+          </div>
+          <div class="field" style="margin-bottom:0">
+            <label>OCR Preview</label>
+            <textarea id="latest-preview" readonly placeholder="若后端有返回 OCR / analysis，这里显示"></textarea>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <section class="panel" id="tab-files">
       <div class="card">
-        <div class="card-title">Monthly Summary</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Month</th><th>Files</th><th>Amount</th></tr></thead>
-            <tbody id="summary-months"></tbody>
-          </table>
+        <div class="section-title">
+          <div>
+            <h2 style="margin:0">Files</h2>
+            <p class="sub" style="margin:6px 0 0">按站点 / Zone / 类型筛选，直接打开 Drive 预览或删除。</p>
+          </div>
+          <button class="btn btn-secondary" style="width:auto" onclick="loadFiles()">Refresh</button>
+        </div>
+
+        <div class="filters">
+          <div class="field" style="margin:0">
+            <label for="filter-station">Station</label>
+            <select id="filter-station" onchange="renderFiles()">
+              <option value="">All</option>
+              <option value="Defu">Defu</option>
+              <option value="Elias">Elias</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0">
+            <label for="filter-zone">Zone</label>
+            <input id="filter-zone" type="text" placeholder="Search zone" oninput="renderFiles()">
+          </div>
+          <div class="field" style="margin:0">
+            <label for="filter-type">File Type</label>
+            <select id="filter-type" onchange="renderFiles()">
+              <option value="">All</option>
+              <option value="Workdone Drawing">Workdone Drawing</option>
+              <option value="BBS">BBS</option>
+              <option value="Payment Cert">Payment Cert</option>
+              <option value="Claim Submission">Claim Submission</option>
+            </select>
+          </div>
+          <div class="field" style="margin:0">
+            <label for="filter-month">Month</label>
+            <input id="filter-month" type="month" onchange="renderFiles()">
+          </div>
+        </div>
+
+        <div class="list" id="files-list"></div>
+      </div>
+    </section>
+
+    <section class="panel" id="tab-summary">
+      <div class="stats" id="summary-stats"></div>
+      <div class="grid grid-2">
+        <div class="card">
+          <div class="section-title">
+            <div>
+              <h2 style="margin:0">Monthly Summary</h2>
+              <p class="sub" style="margin:6px 0 0">按月统计文件数量和金额。</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Month</th><th>Files</th><th>Amount</th></tr></thead>
+              <tbody id="summary-months"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card">
+          <div class="section-title">
+            <div>
+              <h2 style="margin:0">By Station</h2>
+              <p class="sub" style="margin:6px 0 0">按站点统计文件数量和金额。</p>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>Station</th><th>Files</th><th>Amount</th></tr></thead>
+              <tbody id="summary-stations"></tbody>
+            </table>
+          </div>
         </div>
       </div>
-    </div>
-    <div>
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-title">By Station</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Station</th><th>Files</th><th>Amount</th></tr></thead>
-            <tbody id="summary-stations"></tbody>
-          </table>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">By File Type</div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Type</th><th>Count</th></tr></thead>
-            <tbody id="summary-types"></tbody>
-          </table>
-        </div>
-      </div>
+    </section>
+  </div>
+
+  <div class="tabs">
+    <div class="tabs-inner">
+      <button class="tab-btn active" data-tab="upload" onclick="switchTab('upload')">Upload</button>
+      <button class="tab-btn" data-tab="files" onclick="switchTab('files')">Files</button>
+      <button class="tab-btn" data-tab="summary" onclick="switchTab('summary')">Summary</button>
     </div>
   </div>
-</div>
 
-<div class="modal-overlay" id="edit-modal">
-  <div class="modal">
-    <button class="modal-close" onclick="closeEditModal()">✕</button>
-    <div class="card-title">Edit File Metadata</div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Station</label>
-        <select id="edit-station">
-          <option value="Defu">Defu</option>
-          <option value="Elias">Elias</option>
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Zone</label>
-        <input type="text" id="edit-zone">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>File Type</label>
-      <select id="edit-filetype">
-        <option value="Workdone Drawing">Workdone Drawing</option>
-        <option value="BBS">BBS</option>
-        <option value="Payment Cert">Payment Cert</option>
-        <option value="Claim Submission">Claim Submission</option>
-      </select>
-    </div>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Date</label>
-        <input type="date" id="edit-date">
-      </div>
-      <div class="form-group">
-        <label>Amount (SGD)</label>
-        <input type="number" id="edit-amount" min="0" step="0.01">
-      </div>
-    </div>
-    <div class="form-group">
-      <label>Description</label>
-      <textarea id="edit-description"></textarea>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end">
-      <button class="btn btn-ghost" onclick="closeEditModal()">Cancel</button>
-      <button class="btn btn-primary" onclick="saveEditedFile()">Save</button>
-    </div>
-  </div>
-</div>
+  <script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwbgegb2u0_CTlObOzFVlySrwMQcR1-RodV6z39wITT_unATLujFuQwmKZkMBoinyW_/exec';
+    let filesState = [];
+    let summaryState = { totalFiles: 0, totalAmount: 0, byMonth: [], byStation: [], byType: [] };
+    let latestUpload = null;
 
-<script>
-const API_URL = 'https://script.google.com/macros/s/AKfycbwbgegb2u0_CTlObOzFVlySrwMQcR1-RodV6z39wITT_unATLujFuQwmKZkMBoinyW_/exec';
-let filesState = [];
-let summaryState = { totalFiles: 0, totalAmount: 0, byMonth: [], byStation: [], byType: [] };
-let currentUploadRecord = null;
-let editingFileId = '';
+    function setStatus(text){
+      document.getElementById('app-status').textContent = text;
+    }
 
-function setStatus(text, tone) {
-  const el = document.getElementById('app-status');
-  el.textContent = text;
-  el.className = `status-badge ${tone || 'status-ready'}`;
-}
+    function money(v){
+      return Number(v || 0).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
 
-async function apiFetch(action, options = {}) {
-  const { method = 'GET', body } = options;
-  const isGet = method === 'GET';
-  const url = isGet
-    ? `${API_URL}?${new URLSearchParams({ action, ...(body || {}) }).toString()}`
-    : API_URL;
-  const response = await fetch(url, {
-    method,
-    headers: isGet ? {} : { 'Content-Type': 'application/json' },
-    body: isGet ? undefined : JSON.stringify({ action, ...(body || {}) })
-  });
-  const result = await response.json();
-  if (!result.success) {
-    throw new Error(result.error || 'Request failed');
-  }
-  return result;
-}
+    function esc(v){
+      return String(v ?? '').replace(/[&<>"']/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[s]));
+    }
 
-function switchTab(name) {
-  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById(`tab-${name}`).classList.add('active');
-  document.querySelectorAll('.tab-btn')[['upload','files','summary'].indexOf(name)].classList.add('active');
-  if (name === 'files') {
-    renderFiles();
-  }
-  if (name === 'summary') {
-    renderSummary();
-  }
-}
+    function switchTab(name){
+      document.querySelectorAll('.panel').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      document.getElementById(`tab-${name}`).classList.add('active');
+      document.querySelectorAll(`.tab-btn[data-tab="${name}"]`).forEach(el => el.classList.add('active'));
+      if(name === 'files') renderFiles();
+      if(name === 'summary') renderSummary();
+    }
 
-function fmtMoney(value) {
-  return Number(value || 0).toLocaleString('en-SG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+    async function apiFetch(action, method = 'GET', body = null){
+      const url = method === 'GET'
+        ? `${API_URL}?${new URLSearchParams({ action, ...(body || {}) }).toString()}`
+        : API_URL;
+      const res = await fetch(url, {
+        method,
+        headers: method === 'GET' ? {} : { 'Content-Type': 'application/json' },
+        body: method === 'GET' ? undefined : JSON.stringify({ action, ...(body || {}) })
+      });
+      const data = await res.json();
+      if(!data.success) throw new Error(data.error || 'Request failed');
+      return data;
+    }
 
-function formatDate(value) {
-  return value || 'N/A';
-}
+    function uploadWithProgress(payload){
+      return new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', API_URL);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.upload.onprogress = (e) => {
+          if(!e.lengthComputable) return;
+          const pct = Math.round((e.loaded / e.total) * 100);
+          document.getElementById('upload-progress-bar').style.width = pct + '%';
+          document.getElementById('upload-progress-percent').textContent = pct + '%';
+          document.getElementById('upload-progress-text').textContent = pct < 100 ? 'Uploading PDF...' : 'Processing...';
+        };
+        xhr.onload = () => {
+          try{
+            const json = JSON.parse(xhr.responseText || '{}');
+            if(!json.success) return reject(new Error(json.error || 'Upload failed'));
+            resolve(json);
+          }catch(err){ reject(err); }
+        };
+        xhr.onerror = () => reject(new Error('Network error during upload'));
+        xhr.send(JSON.stringify(payload));
+      });
+    }
 
-function safeText(value) {
-  return value || '';
-}
+    function fileToBase64(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
 
-function statusTone(value) {
-  const normalized = String(value || '').toLowerCase().replace(/\s+/g, '-');
-  if (normalized === 'recognized') return 'status-recognized';
-  if (normalized === 'needs-review') return 'status-needs-review';
-  if (normalized === 'saved') return 'status-saved';
-  if (normalized === 'error') return 'status-error';
-  return 'status-ready';
-}
-
-function readFileAsBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result).split(',')[1] || '');
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-}
-
-async function reloadFiles() {
-  setStatus('Loading', 'status-ready');
-  const result = await apiFetch('getFiles');
-  filesState = result.files || [];
-  setStatus('Ready', 'status-ready');
-  renderFiles();
-}
-
-async function reloadSummary() {
-  const result = await apiFetch('getSummary');
-  summaryState = result.summary || summaryState;
-  renderSummary();
-}
-
-async function uploadAndAnalyze() {
-  const input = document.getElementById('upload-file');
-  const file = input.files[0];
-  if (!file) {
-    alert('Please choose a PDF first.');
-    return;
-  }
-
-  setStatus('Uploading', 'status-ready');
-  document.getElementById('upload-analyze-btn').disabled = true;
-  try {
-    const fileData = await readFileAsBase64(file);
-    const result = await apiFetch('uploadFile', {
-      method: 'POST',
-      body: {
-        station: document.getElementById('upload-station').value,
-        zone: document.getElementById('upload-zone').value.trim(),
-        fileType: document.getElementById('upload-filetype').value,
-        fileName: file.name,
-        mimeType: file.type || 'application/pdf',
-        fileData: fileData
+    function showProgress(show){
+      document.getElementById('upload-progress-wrap').classList.toggle('show', !!show);
+      if(!show){
+        document.getElementById('upload-progress-bar').style.width = '0%';
+        document.getElementById('upload-progress-percent').textContent = '0%';
+        document.getElementById('upload-progress-text').textContent = 'Uploading...';
       }
-    });
-    currentUploadRecord = result.file;
-    hydrateUploadPanel(result.file);
-    await reloadFiles();
-    await reloadSummary();
-    setStatus('Recognized', statusTone(result.file.Status));
-  } catch (error) {
-    console.error(error);
-    setStatus('Error', 'status-error');
-    alert(error.message || 'Upload failed.');
-  } finally {
-    document.getElementById('upload-analyze-btn').disabled = false;
-  }
-}
+    }
 
-function hydrateUploadPanel(file) {
-  document.getElementById('recognized-file-name').textContent = file.FileName || 'Uploaded';
-  document.getElementById('recognized-status').textContent = file.Status || 'Saved';
-  document.getElementById('recognized-drive-link').innerHTML = file.DriveURL
-    ? `<a href="${file.DriveURL}" target="_blank" style="color:var(--accent)">Open in Drive</a>`
-    : 'Unavailable';
-  document.getElementById('recognized-amount').value = file.Amount || '';
-  document.getElementById('recognized-date').value = file.DocDate || '';
-  document.getElementById('recognized-description').value = file.Description || '';
-  document.getElementById('recognized-preview').value = file.analysis ? (file.analysis.extractedTextPreview || '') : '';
-  document.getElementById('upload-save-btn').disabled = false;
-  document.getElementById('upload-helper').textContent = 'Review the detected fields, edit if needed, then save metadata.';
-}
+    function hydrateLatest(file){
+      latestUpload = file;
+      document.getElementById('latest-file-name').textContent = file.FileName || '-';
+      document.getElementById('latest-status').textContent = file.Status || 'Saved';
+      document.getElementById('latest-drive').innerHTML = file.DriveURL ? `<a href="${file.DriveURL}" target="_blank" rel="noopener">Open Drive Preview</a>` : '<span class="sub">No link</span>';
+      document.getElementById('latest-description').value = file.Description || '';
+      document.getElementById('latest-preview').value = file.analysis?.extractedTextPreview || '';
+    }
 
-async function saveCurrentUploadEdits() {
-  if (!currentUploadRecord) {
-    alert('Upload a file first.');
-    return;
-  }
+    async function submitUpload(){
+      const fileInput = document.getElementById('upload-file');
+      const file = fileInput.files[0];
+      if(!file){ alert('请先选择 PDF。'); return; }
+      if(file.type && file.type !== 'application/pdf'){ alert('只允许 PDF。'); return; }
 
-  try {
-    const result = await apiFetch('updateFile', {
-      method: 'POST',
-      body: {
-        id: currentUploadRecord.ID,
-        station: document.getElementById('upload-station').value,
-        zone: document.getElementById('upload-zone').value.trim(),
-        fileType: document.getElementById('upload-filetype').value,
-        amount: document.getElementById('recognized-amount').value,
-        date: document.getElementById('recognized-date').value,
-        description: document.getElementById('recognized-description').value.trim(),
-        status: 'Saved'
+      const btn = document.getElementById('upload-submit-btn');
+      btn.disabled = true;
+      showProgress(true);
+      setStatus('Uploading');
+      document.getElementById('upload-helper').textContent = '正在上传，请稍等…';
+
+      try{
+        const fileData = await fileToBase64(file);
+        const result = await uploadWithProgress({
+          action: 'uploadFile',
+          station: document.getElementById('upload-station').value,
+          zone: document.getElementById('upload-zone').value.trim(),
+          fileType: document.getElementById('upload-filetype').value,
+          fileName: file.name,
+          mimeType: 'application/pdf',
+          fileData,
+          amount: document.getElementById('upload-amount').value,
+          date: document.getElementById('upload-date').value,
+          description: document.getElementById('upload-description').value.trim()
+        });
+
+        let uploaded = result.file;
+        const manualAmount = document.getElementById('upload-amount').value;
+        const manualDate = document.getElementById('upload-date').value;
+        const manualDescription = document.getElementById('upload-description').value.trim();
+
+        if(uploaded && (manualAmount || manualDate || manualDescription)){
+          const updateRes = await apiFetch('updateFile', 'POST', {
+            id: uploaded.ID,
+            station: document.getElementById('upload-station').value,
+            zone: document.getElementById('upload-zone').value.trim(),
+            fileType: document.getElementById('upload-filetype').value,
+            amount: manualAmount,
+            date: manualDate,
+            description: manualDescription,
+            status: 'Saved'
+          });
+          uploaded = updateRes.file || uploaded;
+        }
+
+        hydrateLatest(uploaded || {});
+        document.getElementById('upload-helper').textContent = '上传完成，已写入系统。';
+        setStatus('Uploaded');
+        await Promise.all([loadFiles(false), loadSummary(false)]);
+      }catch(err){
+        console.error(err);
+        alert(err.message || 'Upload failed');
+        document.getElementById('upload-helper').textContent = '上传失败，请重试。';
+        setStatus('Error');
+      }finally{
+        btn.disabled = false;
+        showProgress(false);
       }
-    });
-    currentUploadRecord = result.file;
-    hydrateUploadPanel(result.file);
-    document.getElementById('recognized-status').textContent = 'Saved';
-    document.getElementById('upload-helper').textContent = 'Metadata saved to Google Sheet.';
-    setStatus('Saved', 'status-saved');
-    await reloadFiles();
-    await reloadSummary();
-  } catch (error) {
-    console.error(error);
-    alert(error.message || 'Save failed.');
-  }
-}
+    }
 
-function filteredFiles() {
-  const station = document.getElementById('filter-station').value;
-  const zone = document.getElementById('filter-zone').value.trim().toLowerCase();
-  const fileType = document.getElementById('filter-filetype').value;
-  const month = document.getElementById('filter-month').value;
-  return filesState.filter(file =>
-    (!station || file.Station === station) &&
-    (!zone || String(file.Zone || '').toLowerCase().includes(zone)) &&
-    (!fileType || file.FileType === fileType) &&
-    (!month || String(file.DocDate || '').slice(0, 7) === month)
-  );
-}
+    function resetUploadForm(){
+      document.getElementById('upload-zone').value = '';
+      document.getElementById('upload-amount').value = '';
+      document.getElementById('upload-date').value = '';
+      document.getElementById('upload-description').value = '';
+      document.getElementById('upload-file').value = '';
+      document.getElementById('selected-file-label').textContent = '选择要上传的 PDF';
+      document.getElementById('upload-helper').textContent = '表单已清空。';
+    }
 
-function renderFiles() {
-  const rows = filteredFiles();
-  const tbody = document.getElementById('files-table');
-  if (!rows.length) {
-    tbody.innerHTML = '<tr><td colspan="7"><div class="empty"><div class="empty-icon">📂</div><p>No files found.</p></div></td></tr>';
-    return;
-  }
-  tbody.innerHTML = rows.map(file => `
-    <tr>
-      <td><div style="font-weight:600;color:var(--ink)">${safeText(file.Station) || 'Unassigned'}</div><div>${safeText(file.Zone) || '-'}</div></td>
-      <td>${safeText(file.FileType)}</td>
-      <td><div style="font-weight:600;color:var(--ink)">${safeText(file.FileName)}</div><div class="helper">${safeText(file.Description)}</div></td>
-      <td>${formatDate(file.DocDate)}</td>
-      <td class="mono">${file.Amount === '' ? '-' : fmtMoney(file.Amount)}</td>
-      <td><span class="status-badge ${statusTone(file.Status)}">${safeText(file.Status) || 'Saved'}</span></td>
-      <td>
-        <div class="actions">
-          <button class="btn btn-ghost" onclick="window.open('${file.DriveURL}','_blank')">Open</button>
-          <button class="btn btn-ghost" onclick="openEditModal('${file.ID}')">Edit</button>
-          <button class="btn btn-danger" onclick="deleteFileRecord('${file.ID}')">Delete</button>
+    async function loadFiles(updateStatus = true){
+      if(updateStatus) setStatus('Loading Files');
+      const res = await apiFetch('getFiles');
+      filesState = res.files || [];
+      renderFiles();
+      if(updateStatus) setStatus('Ready');
+    }
+
+    async function loadSummary(updateStatus = true){
+      if(updateStatus) setStatus('Loading Summary');
+      const res = await apiFetch('getSummary');
+      summaryState = res.summary || summaryState;
+      renderSummary();
+      if(updateStatus) setStatus('Ready');
+    }
+
+    function filteredFiles(){
+      const station = document.getElementById('filter-station').value;
+      const zone = document.getElementById('filter-zone').value.trim().toLowerCase();
+      const type = document.getElementById('filter-type').value;
+      const month = document.getElementById('filter-month').value;
+      return filesState.filter(f => {
+        const fileMonth = String(f.DocDate || f.Date || '').slice(0,7);
+        return (!station || f.Station === station)
+          && (!zone || String(f.Zone || '').toLowerCase().includes(zone))
+          && (!type || f.FileType === type)
+          && (!month || fileMonth === month);
+      });
+    }
+
+    function renderFiles(){
+      const list = document.getElementById('files-list');
+      const items = filteredFiles();
+      if(!items.length){
+        list.innerHTML = '<div class="empty">没有符合筛选条件的文件。</div>';
+        return;
+      }
+      list.innerHTML = items.map(file => `
+        <div class="file-card">
+          <div class="file-top">
+            <div>
+              <div class="file-title">${esc(file.FileName || 'Untitled PDF')}</div>
+              <div class="file-sub">${esc(file.Description || 'No description')}</div>
+            </div>
+            <div class="badge">${esc(file.Status || 'Saved')}</div>
+          </div>
+          <div class="badges">
+            <span class="badge">${esc(file.Station || '-')}</span>
+            <span class="badge">${esc(file.Zone || '-')}</span>
+            <span class="badge">${esc(file.FileType || '-')}</span>
+            <span class="badge">${esc((file.DocDate || file.Date || '-'))}</span>
+            <span class="badge">SGD ${money(file.Amount || 0)}</span>
+          </div>
+          <div class="file-actions">
+            <button class="btn btn-secondary" onclick="openDrive('${encodeURIComponent(file.DriveURL || '')}')">Open</button>
+            <button class="btn btn-danger" onclick="removeFile('${esc(file.ID || '')}')">Delete</button>
+          </div>
         </div>
-      </td>
-    </tr>
-  `).join('');
-}
+      `).join('');
+    }
 
-function openEditModal(id) {
-  const file = filesState.find(item => item.ID === id);
-  if (!file) {
-    return;
-  }
-  editingFileId = id;
-  document.getElementById('edit-station').value = file.Station || 'Defu';
-  document.getElementById('edit-zone').value = file.Zone || '';
-  document.getElementById('edit-filetype').value = file.FileType || 'Workdone Drawing';
-  document.getElementById('edit-date').value = file.DocDate || '';
-  document.getElementById('edit-amount').value = file.Amount || '';
-  document.getElementById('edit-description').value = file.Description || '';
-  document.getElementById('edit-modal').classList.add('open');
-}
+    function openDrive(url){
+      const decoded = decodeURIComponent(url || '');
+      if(!decoded){ alert('No Drive URL found.'); return; }
+      window.open(decoded, '_blank', 'noopener');
+    }
 
-function closeEditModal() {
-  editingFileId = '';
-  document.getElementById('edit-modal').classList.remove('open');
-}
-
-async function saveEditedFile() {
-  if (!editingFileId) {
-    return;
-  }
-  try {
-    await apiFetch('updateFile', {
-      method: 'POST',
-      body: {
-        id: editingFileId,
-        station: document.getElementById('edit-station').value,
-        zone: document.getElementById('edit-zone').value.trim(),
-        fileType: document.getElementById('edit-filetype').value,
-        date: document.getElementById('edit-date').value,
-        amount: document.getElementById('edit-amount').value,
-        description: document.getElementById('edit-description').value.trim(),
-        status: 'Saved'
+    async function removeFile(id){
+      if(!id) return;
+      if(!confirm('确认删除这个文件记录？')) return;
+      try{
+        setStatus('Deleting');
+        await apiFetch('deleteFile', 'POST', { id });
+        await Promise.all([loadFiles(false), loadSummary(false)]);
+        setStatus('Ready');
+      }catch(err){
+        console.error(err);
+        alert(err.message || 'Delete failed');
+        setStatus('Error');
       }
+    }
+
+    function renderSummary(){
+      const stats = document.getElementById('summary-stats');
+      const byMonth = summaryState.byMonth || [];
+      const byStation = summaryState.byStation || [];
+      stats.innerHTML = `
+        <div class="stat"><div class="k">Total Files</div><div class="v">${summaryState.totalFiles || 0}</div></div>
+        <div class="stat"><div class="k">Total Amount</div><div class="v">SGD ${money(summaryState.totalAmount || 0)}</div></div>
+        <div class="stat"><div class="k">Months</div><div class="v">${byMonth.length}</div></div>
+        <div class="stat"><div class="k">Stations</div><div class="v">${byStation.length}</div></div>
+      `;
+
+      document.getElementById('summary-months').innerHTML = byMonth.length
+        ? byMonth.map(row => `<tr><td>${esc(row.month || '-')}</td><td>${esc(row.count || 0)}</td><td>SGD ${money(row.amount || 0)}</td></tr>`).join('')
+        : '<tr><td colspan="3" class="empty">暂无月度数据</td></tr>';
+
+      document.getElementById('summary-stations').innerHTML = byStation.length
+        ? byStation.map(row => `<tr><td>${esc(row.station || '-')}</td><td>${esc(row.count || 0)}</td><td>SGD ${money(row.amount || 0)}</td></tr>`).join('')
+        : '<tr><td colspan="3" class="empty">暂无站点数据</td></tr>';
+    }
+
+    document.getElementById('upload-file').addEventListener('change', (e) => {
+      const f = e.target.files[0];
+      document.getElementById('selected-file-label').textContent = f ? f.name : '选择要上传的 PDF';
     });
-    closeEditModal();
-    await reloadFiles();
-    await reloadSummary();
-  } catch (error) {
-    console.error(error);
-    alert(error.message || 'Update failed.');
-  }
-}
 
-async function deleteFileRecord(id) {
-  if (!confirm('Delete this file record and trash the Google Drive PDF?')) {
-    return;
-  }
-  try {
-    await apiFetch('deleteFile', {
-      method: 'POST',
-      body: { id }
-    });
-    await reloadFiles();
-    await reloadSummary();
-  } catch (error) {
-    console.error(error);
-    alert(error.message || 'Delete failed.');
-  }
-}
+    async function init(){
+      try{
+        setStatus('Loading');
+        await Promise.all([loadFiles(false), loadSummary(false)]);
+        setStatus('Ready');
+      }catch(err){
+        console.error(err);
+        setStatus('Error');
+        alert(err.message || 'Failed to load data');
+      }
+    }
 
-function renderSummary() {
-  const stats = summaryState;
-  document.getElementById('summary-stats').innerHTML = `
-    <div class="stat-card"><div class="stat-label">Total Files</div><div class="stat-value">${stats.totalFiles || 0}</div></div>
-    <div class="stat-card"><div class="stat-label">Claim Amount</div><div class="stat-value">SGD ${fmtMoney(stats.totalAmount || 0)}</div></div>
-    <div class="stat-card"><div class="stat-label">Stations Covered</div><div class="stat-value">${(stats.byStation || []).length}</div></div>
-    <div class="stat-card"><div class="stat-label">File Types</div><div class="stat-value">${(stats.byType || []).length}</div></div>
-  `;
-
-  const months = stats.byMonth || [];
-  const maxValue = Math.max(...months.map(item => Number(item.amount || 0)), 1);
-  const chart = document.getElementById('summary-chart');
-  chart.innerHTML = months.length
-    ? months.map(item => `
-        <div class="chart-bar-group">
-          <div class="chart-bar" style="height:${Math.max(Math.round(Number(item.amount || 0) / maxValue * 140), 6)}px"></div>
-          <div class="chart-label">${safeText(item.month).slice(5) || 'NA'}</div>
-        </div>
-      `).join('')
-    : '<div class="helper">No summary data yet.</div>';
-
-  document.getElementById('summary-months').innerHTML = months.length
-    ? months.map(item => `<tr><td>${safeText(item.month)}</td><td class="mono">${item.count}</td><td class="mono">SGD ${fmtMoney(item.amount)}</td></tr>`).join('')
-    : '<tr><td colspan="3" class="helper">No data yet</td></tr>';
-
-  document.getElementById('summary-stations').innerHTML = (stats.byStation || []).length
-    ? stats.byStation.map(item => `<tr><td>${safeText(item.station)}</td><td class="mono">${item.count}</td><td class="mono">SGD ${fmtMoney(item.amount)}</td></tr>`).join('')
-    : '<tr><td colspan="3" class="helper">No data yet</td></tr>';
-
-  document.getElementById('summary-types').innerHTML = (stats.byType || []).length
-    ? stats.byType.map(item => `<tr><td>${safeText(item.fileType)}</td><td class="mono">${item.count}</td></tr>`).join('')
-    : '<tr><td colspan="2" class="helper">No data yet</td></tr>';
-}
-
-async function initialize() {
-  try {
-    setStatus('Loading', 'status-ready');
-    await reloadFiles();
-    await reloadSummary();
-    setStatus('Ready', 'status-ready');
-  } catch (error) {
-    console.error(error);
-    setStatus('Error', 'status-error');
-    alert(error.message || 'Failed to load application data.');
-  }
-}
-
-initialize();
-</script>
+    init();
+  </script>
 </body>
 </html>
